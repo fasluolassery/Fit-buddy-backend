@@ -5,20 +5,59 @@ import IAuthService from "../../services/interfaces/auth-service.interface";
 import { Request, Response } from "express";
 import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
+import { LoginReqDto, SignupReqDto, VerifyOtpReqDto } from "../../dto/auth.dto";
+import { env } from "../../config/env.config";
 
 @injectable()
 export default class AuthController implements IAuthController {
   constructor(@inject(TYPES.IAuthService) private _authService: IAuthService) {}
 
   async signup(req: Request, res: Response): Promise<void> {
-    try {
-      console.log("here");
-      // const { name, email } = req.body;
-      // logger.info(name, email);
-      //   const response = await this._authService.signup(req.body);
-      res.status(HttpStatus.OK).json({ msg: "OKAY" });
-    } catch (err) {
-      res.status(HttpStatus.BAD_REQUEST).json({ err });
-    }
+    logger.info(`Data: ${JSON.stringify(req.body)}`);
+
+    const dto: SignupReqDto = req.body;
+    const data = await this._authService.signup(dto);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: "Signup successful. OTP sent to email.",
+      data,
+    });
+  }
+
+  async verifyOtp(req: Request, res: Response): Promise<void> {
+    logger.info(`Data: ${JSON.stringify(req.body)}`);
+
+    const dto: VerifyOtpReqDto = req.body;
+    await this._authService.verifyOtp(dto);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Email verified successfully",
+    });
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    logger.info(`Data: ${JSON.stringify(req.body)}`);
+
+    const dto: LoginReqDto = req.body;
+    const data = await this._authService.login(dto);
+    const { accessToken, refreshToken, user } = data;
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: env.REFRESH_TOKEN_MAX_AGE,
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Login successful",
+      data: {
+        accessToken,
+        user,
+      },
+    });
   }
 }

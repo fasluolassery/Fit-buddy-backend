@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseError } from "../common/errors";
 import logger from "../utils/logger.util";
+import { HttpStatus } from "../constants/http-status.constant";
 
 export function errorHandler(
   err: unknown,
@@ -9,18 +10,27 @@ export function errorHandler(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction,
 ) {
-  logger.error("Error: " + (err instanceof Error ? err.message : String(err)));
+  logger.error(err instanceof Error ? err.message : String(err));
 
   if (err instanceof BaseError) {
     return res.status(err.statusCode).json({
-      message: err.message,
-      code: err.code,
-      details: err.details || null,
+      success: false,
+      error: {
+        message: err.message,
+        code: err.code,
+        details: err.details || null,
+      },
     });
   }
-  // logger.error("Error: ", err);
 
-  return res.status(500).json({
-    message: "Internal Server Error",
+  // logger.error("Error: ", err.message);
+
+  return res.status(HttpStatus.INTERNAL_ERROR).json({
+    success: false,
+    error: {
+      message: "Internal Server Error",
+      code: "INTERNAL_SERVER_ERROR",
+      details: null,
+    },
   });
 }

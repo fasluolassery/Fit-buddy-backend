@@ -1,13 +1,18 @@
-import { z } from "zod";
+import { email, z } from "zod";
 
-export const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(6),
+export const signupSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["user", "trainer", "admin"]),
 });
 
-export const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.email(),
-  password: z.string().min(6),
-  role: z.enum(["user", "trainer", "admin"]).optional(),
+export const verifyOtpSchema = z.object({
+  email: email("Invalid email address"),
+  otp: z.string().length(6, "Otp must be 6 numbers"),
+});
+
+export const loginSchema = z.object({
+  email: z.email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });

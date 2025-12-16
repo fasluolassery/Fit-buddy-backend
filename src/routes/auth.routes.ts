@@ -2,11 +2,34 @@ import { Router } from "express";
 import container from "../config/inversify.config";
 import TYPES from "../constants/types";
 import IAuthController from "../controllers/interfaces/auth-controller.interface";
+import { validate } from "../middlewares/validate.middleware";
+import {
+  loginSchema,
+  signupSchema,
+  verifyOtpSchema,
+} from "../validators/auth.validator";
+import { asyncHandler } from "../utils/async-handler.util";
 
 const router: Router = Router();
 
 const authController = container.get<IAuthController>(TYPES.IAuthController);
 
-router.post("/signup", (req, res) => authController.signup(req, res));
+router.post(
+  "/signup",
+  validate(signupSchema),
+  asyncHandler((req, res) => authController.signup(req, res)),
+);
+
+router.post(
+  "/verify-otp",
+  validate(verifyOtpSchema),
+  asyncHandler((req, res) => authController.verifyOtp(req, res)),
+);
+
+router.post(
+  "/login",
+  validate(loginSchema),
+  asyncHandler((req, res) => authController.login(req, res)),
+);
 
 export default router;

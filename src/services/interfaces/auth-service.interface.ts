@@ -1,5 +1,13 @@
-import { IUserDocument } from "../../entities/user.entity";
+import {
+  LoginReqDto,
+  LoginServiceResDto,
+  SignupReqDto,
+  SignupResDto,
+  VerifyOtpReqDto,
+} from "../../dto/auth.dto";
 
 export default interface IAuthService {
-  signup(data: Partial<IUserDocument>): Promise<Partial<IUserDocument>>;
+  signup(data: SignupReqDto): Promise<SignupResDto>;
+  verifyOtp(data: VerifyOtpReqDto): Promise<void>;
+  login(data: LoginReqDto): Promise<LoginServiceResDto>;
 }

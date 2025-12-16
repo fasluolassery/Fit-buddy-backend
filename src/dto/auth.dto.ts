@@ -1,12 +1,30 @@
-export interface SignUp {
+export interface SignupReqDto {
   name: string;
   email: string;
   password: string;
   phone: string;
-  role?: "user" | "trainer" | "admin";
+  role: "user" | "trainer" | "admin";
 }
 
-export interface SignIn {
+export interface SignupResDto {
+  email: string;
+}
+
+export interface VerifyOtpReqDto {
+  email: string;
+  otp: string;
+}
+
+export interface LoginReqDto {
   email: string;
   password: string;
+}
+
+export interface LoginServiceResDto {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    email: string;
+    role: string;
+  };
 }

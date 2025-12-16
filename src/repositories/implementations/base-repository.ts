@@ -1,6 +1,5 @@
 import { Model, Document, QueryFilter, Types, UpdateQuery } from "mongoose";
 import IBaseRepository from "../interfaces/base-repository.interface";
-import logger from "../../utils/logger.util";
 
 export default class BaseRepository<
   T extends Document,
@@ -8,49 +7,31 @@ export default class BaseRepository<
   constructor(private _model: Model<T>) {}
 
   async create(data: Partial<T>): Promise<T> {
-    try {
-      const doc = new this._model(data);
-      return await doc.save();
-    } catch (err) {
-      logger.error("Error creating document:" + err);
-      throw err;
-    }
+    const doc = new this._model(data);
+    return doc.save();
   }
 
   async findOne(filter: QueryFilter<T>): Promise<T | null> {
-    try {
-      return await this._model.findOne(filter);
-    } catch (err) {
-      logger.error("Error finding one:" + err);
-      throw err;
-    }
+    return this._model.findOne(filter);
   }
 
   async findAll(filter: QueryFilter<T>): Promise<T[]> {
-    try {
-      return await this._model.find(filter);
-    } catch (err) {
-      logger.error("Error finding by id:" + err);
-      throw err;
-    }
+    return this._model.find(filter);
   }
 
-  async update(id: Types.ObjectId, data: UpdateQuery<T>): Promise<T | null> {
-    try {
-      return await this._model.findByIdAndUpdate(id, data, { new: true });
-    } catch (err) {
-      logger.error("Error updating document:" + err);
-      throw err;
-    }
+  updateOne(filter: QueryFilter<T>, update: UpdateQuery<T>): Promise<T | null> {
+    return this._model.findOneAndUpdate(filter, update, { new: true });
   }
 
-  async delete(id: Types.ObjectId): Promise<boolean> {
-    try {
-      const result = await this._model.findByIdAndDelete(id);
-      return result !== null;
-    } catch (err) {
-      logger.error("Error deleting:" + err);
-      throw err;
-    }
+  async updateById(
+    id: Types.ObjectId,
+    update: UpdateQuery<T>,
+  ): Promise<T | null> {
+    return this._model.findByIdAndUpdate(id, update, { new: true });
+  }
+
+  async deleteById(id: Types.ObjectId): Promise<boolean> {
+    const result = await this._model.findByIdAndDelete(id);
+    return result !== null;
   }
 }

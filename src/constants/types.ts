@@ -3,6 +3,8 @@ const TYPES = {
   IUserRepository: Symbol.for("IUserRepository"),
   IAuthService: Symbol.for("IAuthService"),
   IAuthController: Symbol.for("IAuthController"),
+  otpModel: Symbol.for("otpModel"),
+  IOtpRepository: Symbol.for("IOtpRepository"),
 };
 
 export default TYPES;

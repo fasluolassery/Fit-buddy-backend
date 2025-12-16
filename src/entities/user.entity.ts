@@ -9,12 +9,12 @@ export interface IUserDocument extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
-  phone: number;
+  phone: string;
   password: string;
 
   googleId?: string;
   profilePhoto?: string;
-  role: "Admin" | "User" | "Trainer";
+  role: "user" | "trainer" | "admin";
 
   primaryGoal: string;
   fitnessLevel?: string;
