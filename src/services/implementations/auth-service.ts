@@ -15,6 +15,7 @@ import {
   SignupReqDto,
   SignupResDto,
   VerifyOtpReqDto,
+  VerifyOtpResDto,
 } from "../../dto/auth.dto";
 import { generateOtp } from "../../utils/otp.util";
 import IOtpRepository from "../../repositories/interfaces/otp-repository.interface";
@@ -22,6 +23,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../../utils/jwt.util";
+import { InternalServerError } from "../../common/errors/internal-server.error";
 // import { sendOtpMail } from "../../utils/mail.util";
 
 @injectable()
@@ -32,8 +34,6 @@ export default class AuthService implements IAuthService {
   ) {}
 
   async signup(data: SignupReqDto): Promise<SignupResDto> {
-    logger.info(`Data: ${JSON.stringify(data)}`);
-
     const { email, password } = data;
 
     const existing = await this._userRepository.findOne({ email });
@@ -63,7 +63,7 @@ export default class AuthService implements IAuthService {
     return { email };
   }
 
-  async verifyOtp(data: VerifyOtpReqDto): Promise<void> {
+  async verifyOtp(data: VerifyOtpReqDto): Promise<VerifyOtpResDto> {
     const { email, otp } = data;
 
     const record = await this._otpRepository.findOne({ email, otp });
@@ -77,7 +77,21 @@ export default class AuthService implements IAuthService {
       throw new BadRequestError("Invalid Otp");
     }
 
-    await this._userRepository.updateOne({ email }, { isVerified: true });
+    const userRecord = await this._userRepository.updateOne(
+      { email },
+      { isVerified: true },
+    );
+
+    if (!userRecord) {
+      throw new InternalServerError("User not found after OTP verification", {
+        email,
+      });
+    }
+
+    return {
+      email,
+      isVerified: true,
+    };
   }
 
   async login(data: LoginReqDto): Promise<LoginServiceResDto> {
@@ -111,6 +125,7 @@ export default class AuthService implements IAuthService {
       accessToken,
       refreshToken,
       user: {
+        _id,
         email,
         role,
       },

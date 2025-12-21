@@ -13,9 +13,9 @@ export default class AuthController implements IAuthController {
   constructor(@inject(TYPES.IAuthService) private _authService: IAuthService) {}
 
   async signup(req: Request, res: Response): Promise<void> {
-    logger.info(`Data: ${JSON.stringify(req.body)}`);
-
     const dto: SignupReqDto = req.body;
+    logger.info(`Data: ${dto.email}`);
+
     const data = await this._authService.signup(dto);
 
     res.status(HttpStatus.CREATED).json({
@@ -29,11 +29,12 @@ export default class AuthController implements IAuthController {
     logger.info(`Data: ${JSON.stringify(req.body)}`);
 
     const dto: VerifyOtpReqDto = req.body;
-    await this._authService.verifyOtp(dto);
+    const data = await this._authService.verifyOtp(dto);
 
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Email verified successfully",
+      data,
     });
   }
 

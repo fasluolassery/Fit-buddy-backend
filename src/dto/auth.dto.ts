@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export interface SignupReqDto {
   name: string;
   email: string;
@@ -15,6 +17,11 @@ export interface VerifyOtpReqDto {
   otp: string;
 }
 
+export interface VerifyOtpResDto {
+  email: string;
+  isVerified: boolean;
+}
+
 export interface LoginReqDto {
   email: string;
   password: string;
@@ -24,6 +31,7 @@ export interface LoginServiceResDto {
   accessToken: string;
   refreshToken: string;
   user: {
+    _id: Types.ObjectId;
     email: string;
     role: string;
   };
