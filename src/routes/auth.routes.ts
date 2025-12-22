@@ -4,6 +4,7 @@ import TYPES from "../constants/types";
 import IAuthController from "../controllers/interfaces/auth-controller.interface";
 import { validate } from "../middlewares/validate.middleware";
 import {
+  forgotPasswordSchema,
   loginSchema,
   resendOtpSchema,
   signupSchema,
@@ -46,6 +47,12 @@ router.post(
   "/resend-otp",
   validate(resendOtpSchema),
   asyncHandler((req, res) => authController.resendOtp(req, res)),
+);
+
+router.post(
+  "/forgot-pasword",
+  validate(forgotPasswordSchema),
+  asyncHandler((req, res) => authController.forgotPassword(req, res)),
 );
 
 export default router;
