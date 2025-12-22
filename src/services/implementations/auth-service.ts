@@ -6,6 +6,7 @@ import logger from "../../utils/logger.util";
 import {
   BadRequestError,
   ConflictError,
+  NotFoundError,
   UnauthorizedError,
 } from "../../common/errors";
 import { comparePassword, hashPassword } from "../../utils/password.util";
@@ -158,5 +159,30 @@ export default class AuthService implements IAuthService {
     });
 
     return { accessToken };
+  }
+
+  async resendOtp(email: string): Promise<SignupResDto> {
+    const user = await this._userRepository.findOne({ email });
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    if (user.isVerified) {
+      throw new BadRequestError("Email already verified");
+    }
+
+    const otp = generateOtp();
+
+    await this._otpRepository.create({
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
+
+    // await sendOtpMail(email, otp);
+    logger.warn("OTP: " + otp);
+
+    return { email };
   }
 }

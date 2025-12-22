@@ -12,4 +12,5 @@ export default interface IAuthService {
   verifyOtp(data: VerifyOtpReqDto): Promise<VerifyOtpResDto>;
   login(data: LoginReqDto): Promise<LoginServiceResDto>;
   refresh(refreshToken: string): Promise<{ accessToken: string }>;
+  resendOtp(email: string): Promise<SignupResDto>;
 }

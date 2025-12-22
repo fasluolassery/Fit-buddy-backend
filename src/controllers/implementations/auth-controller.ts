@@ -77,4 +77,16 @@ export default class AuthController implements IAuthController {
       message: "Logged out successfully",
     });
   }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    const { email } = req.body;
+
+    const data = await this._authService.resendOtp(email);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "OTP resent successfully",
+      data,
+    });
+  }
 }

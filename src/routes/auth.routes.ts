@@ -5,6 +5,7 @@ import IAuthController from "../controllers/interfaces/auth-controller.interface
 import { validate } from "../middlewares/validate.middleware";
 import {
   loginSchema,
+  resendOtpSchema,
   signupSchema,
   verifyOtpSchema,
 } from "../validators/auth.validator";
@@ -39,6 +40,12 @@ router.post(
 router.post(
   "/logout",
   asyncHandler((req, res) => authController.logout(req, res)),
+);
+
+router.post(
+  "/resend-otp",
+  validate(resendOtpSchema),
+  asyncHandler((req, res) => authController.resendOtp(req, res)),
 );
 
 export default router;
