@@ -26,7 +26,7 @@ import {
   verifyRefreshToken,
 } from "../../utils/jwt.util";
 import { InternalServerError } from "../../common/errors/internal-server.error";
-// import { sendOtpMail } from "../../utils/mail.util";
+// import { sendOtpMail, sendResetPasswordOtp } from "../../utils/mail.util";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -184,5 +184,21 @@ export default class AuthService implements IAuthService {
     logger.warn("OTP: " + otp);
 
     return { email };
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this._userRepository.findOne({ email });
+    if (!user) return;
+
+    const otp = generateOtp();
+
+    await this._otpRepository.create({
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
+
+    // await sendResetPasswordOtp(email, otp);
+    logger.warn("OTP: " + otp);
   }
 }

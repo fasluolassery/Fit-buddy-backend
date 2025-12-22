@@ -89,4 +89,15 @@ export default class AuthController implements IAuthController {
       data,
     });
   }
+
+  async forgotPassword(req: Request, res: Response): Promise<void> {
+    const { email } = req.body;
+
+    await this._authService.forgotPassword(email);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Password reset OTP send to email",
+    });
+  }
 }

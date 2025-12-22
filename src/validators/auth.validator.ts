@@ -20,3 +20,7 @@ export const loginSchema = z.object({
 export const resendOtpSchema = z.object({
   email: z.email("Invalid email address"),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.email("Invalid email address"),
+});
