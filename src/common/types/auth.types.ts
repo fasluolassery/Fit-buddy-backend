@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { JwtPayload } from "jsonwebtoken";
 
 export interface TokenPayload {
   id: string;
@@ -7,5 +6,8 @@ export interface TokenPayload {
 }
 
 export interface AuthRequest extends Request {
-  user?: JwtPayload;
+  user?: {
+    id: string;
+    role: string;
+  };
 }

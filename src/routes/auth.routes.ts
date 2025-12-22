@@ -11,7 +11,6 @@ import {
 import { asyncHandler } from "../utils/async-handler.util";
 
 const router: Router = Router();
-
 const authController = container.get<IAuthController>(TYPES.IAuthController);
 
 router.post(

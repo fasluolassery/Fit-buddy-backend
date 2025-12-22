@@ -1,4 +1,4 @@
-import { Model, Document, QueryFilter, Types, UpdateQuery } from "mongoose";
+import { Model, Document, QueryFilter, UpdateQuery } from "mongoose";
 import IBaseRepository from "../interfaces/base-repository.interface";
 
 export default class BaseRepository<
@@ -9,6 +9,10 @@ export default class BaseRepository<
   async create(data: Partial<T>): Promise<T> {
     const doc = new this._model(data);
     return doc.save();
+  }
+
+  async findById(id: string): Promise<T | null> {
+    return this._model.findById(id);
   }
 
   async findOne(filter: QueryFilter<T>): Promise<T | null> {
@@ -23,14 +27,11 @@ export default class BaseRepository<
     return this._model.findOneAndUpdate(filter, update, { new: true });
   }
 
-  async updateById(
-    id: Types.ObjectId,
-    update: UpdateQuery<T>,
-  ): Promise<T | null> {
+  async updateById(id: string, update: UpdateQuery<T>): Promise<T | null> {
     return this._model.findByIdAndUpdate(id, update, { new: true });
   }
 
-  async deleteById(id: Types.ObjectId): Promise<boolean> {
+  async deleteById(id: string): Promise<boolean> {
     const result = await this._model.findByIdAndDelete(id);
     return result !== null;
   }

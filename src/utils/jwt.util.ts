@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { env } from "../config/env.config";
 import { TokenPayload } from "../common/types/auth.types";
 
@@ -8,12 +8,12 @@ export const generateAccessToken = (payload: TokenPayload) =>
 export const generateRefreshToken = (payload: TokenPayload) =>
   jwt.sign(payload, env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
-export const verifyRefreshToken = (token: string): JwtPayload =>
-  jwt.verify(token, env.REFRESH_TOKEN_SECRET) as JwtPayload;
+export const verifyRefreshToken = (token: string): TokenPayload =>
+  jwt.verify(token, env.REFRESH_TOKEN_SECRET) as TokenPayload;
 
-export const verifyAccessToken = (token: string): JwtPayload | null => {
+export const verifyAccessToken = (token: string): TokenPayload | null => {
   try {
-    return jwt.verify(token, env.ACCESS_TOKEN_SECRET) as JwtPayload;
+    return jwt.verify(token, env.ACCESS_TOKEN_SECRET) as TokenPayload;
   } catch {
     return null;
   }

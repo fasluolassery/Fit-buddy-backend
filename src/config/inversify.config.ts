@@ -10,6 +10,10 @@ import IAuthService from "../services/interfaces/auth-service.interface";
 import otpModel from "../models/otp.model";
 import OtpRepository from "../repositories/implementations/otp-repository";
 import IOtpRepository from "../repositories/interfaces/otp-repository.interface";
+import UserService from "../services/implementations/user-service";
+import IUserService from "../services/interfaces/user-service.interface";
+import IUserController from "../controllers/interfaces/user-controller.interface";
+import UserController from "../controllers/implementations/user-controller";
 
 const container = new Container();
 
@@ -20,5 +24,8 @@ container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
 
 container.bind(TYPES.otpModel).toConstantValue(otpModel);
 container.bind<IOtpRepository>(TYPES.IOtpRepository).to(OtpRepository);
+
+container.bind<IUserService>(TYPES.IUserService).to(UserService);
+container.bind<IUserController>(TYPES.IUserController).to(UserController);
 
 export default container;
