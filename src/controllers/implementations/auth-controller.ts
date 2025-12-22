@@ -61,4 +61,16 @@ export default class AuthController implements IAuthController {
       },
     });
   }
+
+  async refresh(req: Request, res: Response): Promise<void> {
+    const refreshToken = req.cookies?.refreshToken;
+
+    const data = await this._authService.refresh(refreshToken);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Token refreshed successfully",
+      data,
+    });
+  }
 }

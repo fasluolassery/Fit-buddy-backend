@@ -22,6 +22,7 @@ import IOtpRepository from "../../repositories/interfaces/otp-repository.interfa
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../../utils/jwt.util";
 import { InternalServerError } from "../../common/errors/internal-server.error";
 // import { sendOtpMail } from "../../utils/mail.util";
@@ -130,5 +131,32 @@ export default class AuthService implements IAuthService {
         role,
       },
     };
+  }
+
+  async refresh(refreshToken?: string): Promise<{ accessToken: string }> {
+    if (!refreshToken) {
+      throw new UnauthorizedError("Refresh token missing");
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+    const { id } = payload;
+
+    const user = await this._userRepository.findById(id);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedError("User not authorized");
+    }
+
+    if (!user.isVerified) {
+      throw new UnauthorizedError("Email not verified");
+    }
+
+    const { _id, role } = user;
+
+    const accessToken = generateAccessToken({
+      id: _id.toString(),
+      role,
+    });
+
+    return { accessToken };
   }
 }

@@ -4,4 +4,5 @@ export default interface IAuthController {
   signup(req: Request, res: Response): Promise<void>;
   verifyOtp(req: Request, res: Response): Promise<void>;
   login(req: Request, res: Response): Promise<void>;
+  refresh(req: Request, res: Response): Promise<void>;
 }

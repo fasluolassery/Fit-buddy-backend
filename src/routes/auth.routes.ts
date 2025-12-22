@@ -31,4 +31,9 @@ router.post(
   asyncHandler((req, res) => authController.login(req, res)),
 );
 
+router.post(
+  "/refresh",
+  asyncHandler((req, res) => authController.refresh(req, res)),
+);
+
 export default router;
