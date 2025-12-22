@@ -13,6 +13,7 @@ import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
   LoginReqDto,
   LoginServiceResDto,
+  ResetPasswordReqDto,
   SignupReqDto,
   SignupResDto,
   VerifyOtpReqDto,
@@ -200,5 +201,32 @@ export default class AuthService implements IAuthService {
 
     // await sendResetPasswordOtp(email, otp);
     logger.warn("OTP: " + otp);
+  }
+
+  async resetPassword(data: ResetPasswordReqDto): Promise<void> {
+    const { email, otp, newPassword } = data;
+    const otpRecord = await this._otpRepository.findOne({ email, otp });
+
+    if (!otpRecord) {
+      throw new UnauthorizedError("invalid OTP");
+    }
+
+    if (otpRecord.expiresAt < new Date()) {
+      throw new UnauthorizedError("User not authorized");
+    }
+
+    const user = await this._userRepository.findOne({ email });
+
+    if (!user || !user.isActive) {
+      throw new UnauthorizedError("User not authorized");
+    }
+
+    const { _id } = user;
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await this._userRepository.updateById(_id, {
+      password: hashedPassword,
+    });
   }
 }

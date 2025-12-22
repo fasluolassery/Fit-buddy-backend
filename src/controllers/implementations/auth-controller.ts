@@ -5,7 +5,12 @@ import IAuthService from "../../services/interfaces/auth-service.interface";
 import { Request, Response } from "express";
 import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
-import { LoginReqDto, SignupReqDto, VerifyOtpReqDto } from "../../dto/auth.dto";
+import {
+  LoginReqDto,
+  ResetPasswordReqDto,
+  SignupReqDto,
+  VerifyOtpReqDto,
+} from "../../dto/auth.dto";
 import { refreshTokenCookieOptions } from "../../config/cookie.config";
 
 @injectable()
@@ -98,6 +103,17 @@ export default class AuthController implements IAuthController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: "Password reset OTP send to email",
+    });
+  }
+
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    const dto: ResetPasswordReqDto = req.body;
+
+    await this._authService.resetPassword(dto);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Password reset successfully",
     });
   }
 }

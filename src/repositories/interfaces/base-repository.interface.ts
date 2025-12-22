@@ -1,4 +1,4 @@
-import { Document, QueryFilter, UpdateQuery } from "mongoose";
+import { Document, QueryFilter, Types, UpdateQuery } from "mongoose";
 
 export default interface IBaseRepository<T extends Document> {
   create(data: Partial<T>): Promise<T>;
@@ -6,6 +6,6 @@ export default interface IBaseRepository<T extends Document> {
   findOne(filter: QueryFilter<T>): Promise<T | null>;
   findAll(filter: QueryFilter<T>): Promise<T[]>;
   updateOne(filter: QueryFilter<T>, update: UpdateQuery<T>): Promise<T | null>;
-  updateById(id: string, update: UpdateQuery<T>): Promise<T | null>;
-  deleteById(id: string): Promise<boolean>;
+  updateById(id: Types.ObjectId, update: UpdateQuery<T>): Promise<T | null>;
+  deleteById(id: Types.ObjectId): Promise<boolean>;
 }

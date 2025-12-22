@@ -36,3 +36,9 @@ export interface LoginServiceResDto {
     role: string;
   };
 }
+
+export interface ResetPasswordReqDto {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
