@@ -36,4 +36,9 @@ router.post(
   asyncHandler((req, res) => authController.refresh(req, res)),
 );
 
+router.post(
+  "/logout",
+  asyncHandler((req, res) => authController.logout(req, res)),
+);
+
 export default router;

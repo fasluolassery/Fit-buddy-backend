@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
 import { LoginReqDto, SignupReqDto, VerifyOtpReqDto } from "../../dto/auth.dto";
-import { env } from "../../config/env.config";
+import { refreshTokenCookieOptions } from "../../config/cookie.config";
 
 @injectable()
 export default class AuthController implements IAuthController {
@@ -45,12 +45,7 @@ export default class AuthController implements IAuthController {
     const data = await this._authService.login(dto);
     const { accessToken, refreshToken, user } = data;
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: env.REFRESH_TOKEN_MAX_AGE,
-    });
+    res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -71,6 +66,15 @@ export default class AuthController implements IAuthController {
       success: true,
       message: "Token refreshed successfully",
       data,
+    });
+  }
+
+  async logout(req: Request, res: Response): Promise<void> {
+    res.clearCookie("refreshToken", refreshTokenCookieOptions);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Logged out successfully",
     });
   }
 }
