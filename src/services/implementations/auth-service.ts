@@ -27,7 +27,7 @@ import {
   verifyRefreshToken,
 } from "../../utils/jwt.util";
 import { InternalServerError } from "../../common/errors/internal-server.error";
-// import { sendOtpMail, sendResetPasswordOtp } from "../../utils/mail.util";
+import { sendOtpMail, sendResetPasswordOtp } from "../../utils/mail.util";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -57,10 +57,10 @@ export default class AuthService implements IAuthService {
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(),
     });
 
-    // await sendOtpMail(email, otp);
+    await sendOtpMail(email, otp);
     logger.warn("OTP: " + otp);
 
     return { email };
@@ -70,11 +70,7 @@ export default class AuthService implements IAuthService {
     const { email, otp } = data;
 
     const record = await this._otpRepository.findOne({ email, otp });
-    if (!record) throw new BadRequestError("Otp not found");
-
-    if (record.expiresAt < new Date()) {
-      throw new BadRequestError("Otp expired");
-    }
+    if (!record) throw new BadRequestError("Otp expired or invalid");
 
     if (record.otp !== otp) {
       throw new BadRequestError("Invalid Otp");
@@ -178,10 +174,10 @@ export default class AuthService implements IAuthService {
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(),
     });
 
-    // await sendOtpMail(email, otp);
+    await sendOtpMail(email, otp);
     logger.warn("OTP: " + otp);
 
     return { email };
@@ -196,10 +192,10 @@ export default class AuthService implements IAuthService {
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      expiresAt: new Date(),
     });
 
-    // await sendResetPasswordOtp(email, otp);
+    await sendResetPasswordOtp(email, otp);
     logger.warn("OTP: " + otp);
   }
 

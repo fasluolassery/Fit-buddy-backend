@@ -7,6 +7,7 @@ import {
   forgotPasswordSchema,
   loginSchema,
   resendOtpSchema,
+  resetPasswordSchema,
   signupSchema,
   verifyOtpSchema,
 } from "../validators/auth.validator";
@@ -57,7 +58,7 @@ router.post(
 
 router.post(
   "/reset-password",
-  validate(resendOtpSchema),
+  validate(resetPasswordSchema),
   asyncHandler((req, res) => authController.resetPassword(req, res)),
 );
 

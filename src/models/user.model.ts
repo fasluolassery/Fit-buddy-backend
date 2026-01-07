@@ -32,7 +32,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
     onboardingComplete: { type: Boolean },
 
     isVerified: { type: Boolean },
-    isActive: { type: Boolean },
+    isActive: { type: Boolean, default: true },
     createdAt: { type: Date },
     updatedAt: { type: Date },
   },
