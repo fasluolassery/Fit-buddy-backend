@@ -1,4 +1,11 @@
-import { Model, Document, QueryFilter, UpdateQuery, Types } from "mongoose";
+import {
+  Model,
+  Document,
+  QueryFilter,
+  UpdateQuery,
+  Types,
+  DeleteResult,
+} from "mongoose";
 import IBaseRepository from "../interfaces/base-repository.interface";
 
 export default class BaseRepository<
@@ -37,5 +44,9 @@ export default class BaseRepository<
   async deleteById(id: Types.ObjectId): Promise<boolean> {
     const result = await this._model.findByIdAndDelete(id);
     return result !== null;
+  }
+
+  async deleteMany(filter: QueryFilter<T>): Promise<DeleteResult> {
+    return this._model.deleteMany(filter);
   }
 }

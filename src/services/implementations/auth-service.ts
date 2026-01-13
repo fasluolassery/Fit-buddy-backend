@@ -8,6 +8,7 @@ import {
   ConflictError,
   NotFoundError,
   UnauthorizedError,
+  EmailNotVerifiedError,
 } from "../../common/errors";
 import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
@@ -53,11 +54,12 @@ export default class AuthService implements IAuthService {
     });
 
     const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(),
+      expiresAt,
     });
 
     await sendOtpMail(email, otp);
@@ -69,8 +71,13 @@ export default class AuthService implements IAuthService {
   async verifyOtp(data: VerifyOtpReqDto): Promise<VerifyOtpResDto> {
     const { email, otp } = data;
 
-    const record = await this._otpRepository.findOne({ email, otp });
+    const record = await this._otpRepository.findOne({ email });
     if (!record) throw new BadRequestError("Otp expired or invalid");
+
+    if (record.expiresAt < new Date()) {
+      await this._otpRepository.deleteMany({ email });
+      throw new BadRequestError("Otp expired");
+    }
 
     if (record.otp !== otp) {
       throw new BadRequestError("Invalid Otp");
@@ -87,6 +94,8 @@ export default class AuthService implements IAuthService {
       });
     }
 
+    await this._otpRepository.deleteMany({ email });
+
     return {
       email,
       isVerified: true,
@@ -100,7 +109,7 @@ export default class AuthService implements IAuthService {
     if (!user) throw new BadRequestError("Invalid credentials");
 
     if (!user.isVerified) {
-      throw new UnauthorizedError("Email not verified");
+      throw new EmailNotVerifiedError();
     }
 
     const isMatch = await comparePassword(password, user.password);
@@ -169,12 +178,15 @@ export default class AuthService implements IAuthService {
       throw new BadRequestError("Email already verified");
     }
 
+    await this._otpRepository.deleteMany({ email });
+
     const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(),
+      expiresAt,
     });
 
     await sendOtpMail(email, otp);
@@ -188,11 +200,12 @@ export default class AuthService implements IAuthService {
     if (!user) return;
 
     const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
 
     await this._otpRepository.create({
       email,
       otp,
-      expiresAt: new Date(),
+      expiresAt,
     });
 
     await sendResetPasswordOtp(email, otp);
