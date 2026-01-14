@@ -14,6 +14,9 @@ import UserService from "../services/implementations/user-service";
 import IUserService from "../services/interfaces/user-service.interface";
 import IUserController from "../controllers/interfaces/user-controller.interface";
 import UserController from "../controllers/implementations/user-controller";
+import passwordResetModel from "../models/password-reset.model";
+import PasswordResetRepository from "../repositories/implementations/password-reset-repository";
+import IPasswordResetRepository from "../repositories/interfaces/password-reset-repository.interface";
 
 const container = new Container();
 
@@ -24,6 +27,11 @@ container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
 
 container.bind(TYPES.otpModel).toConstantValue(otpModel);
 container.bind<IOtpRepository>(TYPES.IOtpRepository).to(OtpRepository);
+
+container.bind(TYPES.passwordResetModel).toConstantValue(passwordResetModel);
+container
+  .bind<IPasswordResetRepository>(TYPES.IPasswordResetRepository)
+  .to(PasswordResetRepository);
 
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
 container.bind<IUserController>(TYPES.IUserController).to(UserController);

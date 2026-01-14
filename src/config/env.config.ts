@@ -14,4 +14,5 @@ export const env = {
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
   REFRESH_TOKEN_MAX_AGE: Number(process.env.REFRESH_TOKEN_MAX_AGE),
   NODE_ENV: "",
+  FRONTEND_URL: "http://localhost:5173",
 };

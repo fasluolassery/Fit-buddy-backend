@@ -51,7 +51,7 @@ router.post(
 );
 
 router.post(
-  "/forgot-pasword",
+  "/forgot-password",
   validate(forgotPasswordSchema),
   asyncHandler((req, res) => authController.forgotPassword(req, res)),
 );

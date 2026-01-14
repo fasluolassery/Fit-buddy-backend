@@ -1,4 +1,5 @@
 import {
+  ForgotPasswordReqDto,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,
@@ -14,6 +15,6 @@ export default interface IAuthService {
   login(data: LoginReqDto): Promise<LoginServiceResDto>;
   refresh(refreshToken: string): Promise<{ accessToken: string }>;
   resendOtp(email: string): Promise<SignupResDto>;
-  forgotPassword(email: string): Promise<void>;
+  forgotPassword(data: ForgotPasswordReqDto): Promise<void>;
   resetPassword(data: ResetPasswordReqDto): Promise<void>;
 }

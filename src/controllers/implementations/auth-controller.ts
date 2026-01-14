@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
 import {
+  ForgotPasswordReqDto,
   LoginReqDto,
   ResetPasswordReqDto,
   SignupReqDto,
@@ -96,13 +97,12 @@ export default class AuthController implements IAuthController {
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
-    const { email } = req.body;
-
-    await this._authService.forgotPassword(email);
+    const dto: ForgotPasswordReqDto = req.body;
+    await this._authService.forgotPassword(dto);
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Password reset OTP send to email",
+      message: "password reset link has been sent to email",
     });
   }
 
@@ -113,7 +113,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Password reset successfully",
+      message: "Your password has been reset successfully",
     });
   }
 }

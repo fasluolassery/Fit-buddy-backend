@@ -42,3 +42,28 @@ export async function sendResetPasswordOtp(
     throw new InternalServerError("Email sending failed");
   }
 }
+
+export async function sendResetPasswordLink(
+  email: string,
+  link: string,
+  time: number,
+): Promise<void> {
+  try {
+    const html = `
+    <p>You requested a password reset.</p>
+    <p>This link is valid for ${time} minutes.</p>
+    <a href="${link}">Reset Password</a>
+    <p>If you didn’t request this, ignore this email.</p>
+  `;
+
+    await mailTransporter.sendMail({
+      from: env.MAIL_USER,
+      to: email,
+      subject: "Reset your password",
+      html,
+    });
+  } catch (err) {
+    logger.error("Reset password link failed" + err);
+    throw new InternalServerError("Email sending failed");
+  }
+}

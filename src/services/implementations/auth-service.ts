@@ -12,6 +12,7 @@ import {
 } from "../../common/errors";
 import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
+  ForgotPasswordReqDto,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,
@@ -28,13 +29,18 @@ import {
   verifyRefreshToken,
 } from "../../utils/jwt.util";
 import { InternalServerError } from "../../common/errors/internal-server.error";
-import { sendOtpMail, sendResetPasswordOtp } from "../../utils/mail.util";
+import { sendOtpMail, sendResetPasswordLink } from "../../utils/mail.util";
+import { generateResetToken, hashToken } from "../../utils/token.util";
+import IPasswordResetRepository from "../../repositories/interfaces/password-reset-repository.interface";
+import { env } from "../../config/env.config";
 
 @injectable()
 export default class AuthService implements IAuthService {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
     @inject(TYPES.IOtpRepository) private _otpRepository: IOtpRepository,
+    @inject(TYPES.IPasswordResetRepository)
+    private _passwordResetRepository: IPasswordResetRepository,
   ) {}
 
   async signup(data: SignupReqDto): Promise<SignupResDto> {
@@ -195,47 +201,52 @@ export default class AuthService implements IAuthService {
     return { email };
   }
 
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(data: ForgotPasswordReqDto): Promise<void> {
+    const { email } = data;
+
     const user = await this._userRepository.findOne({ email });
     if (!user) return;
 
-    const otp = generateOtp();
-    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+    const { _id } = user;
+    const { rawToken, tokenHash } = generateResetToken();
 
-    await this._otpRepository.create({
-      email,
-      otp,
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await this._passwordResetRepository.create({
+      userId: _id,
+      tokenHash,
       expiresAt,
     });
 
-    await sendResetPasswordOtp(email, otp);
-    logger.warn("OTP: " + otp);
+    const resetLink = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
+    logger.info("Reset Link" + resetLink);
+
+    await sendResetPasswordLink(email, resetLink, 5);
+
+    logger.info(`password reset link sent to ${email}`);
   }
 
   async resetPassword(data: ResetPasswordReqDto): Promise<void> {
-    const { email, otp, newPassword } = data;
-    const otpRecord = await this._otpRepository.findOne({ email, otp });
+    const { token, newPassword } = data;
 
-    if (!otpRecord) {
-      throw new UnauthorizedError("invalid OTP");
+    const tokenHash = hashToken(token);
+
+    const resetRecord = await this._passwordResetRepository.findOne({
+      tokenHash,
+      usedAt: null,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!resetRecord) {
+      throw new UnauthorizedError("Invalid or expired reset link");
     }
 
-    if (otpRecord.expiresAt < new Date()) {
-      throw new UnauthorizedError("User not authorized");
-    }
-
-    const user = await this._userRepository.findOne({ email });
-
-    if (!user || !user.isActive) {
-      throw new UnauthorizedError("User not authorized");
-    }
-
-    const { _id } = user;
+    const { userId, _id } = resetRecord;
 
     const hashedPassword = await hashPassword(newPassword);
 
-    await this._userRepository.updateById(_id, {
-      password: hashedPassword,
-    });
+    await this._userRepository.updateById(userId, { password: hashedPassword });
+
+    await this._passwordResetRepository.updateById(_id, { usedAt: new Date() });
   }
 }

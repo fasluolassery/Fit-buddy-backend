@@ -7,6 +7,8 @@ const TYPES = {
   IOtpRepository: Symbol.for("IOtpRepository"),
   IUserService: Symbol.for("IUserService"),
   IUserController: Symbol.for("IUserController"),
+  passwordResetModel: Symbol.for("passwordResetModel"),
+  IPasswordResetRepository: Symbol.for("IPasswordResetRepository"),
 };
 
 export default TYPES;

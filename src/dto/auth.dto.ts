@@ -37,8 +37,11 @@ export interface LoginServiceResDto {
   };
 }
 
-export interface ResetPasswordReqDto {
+export interface ForgotPasswordReqDto {
   email: string;
-  otp: string;
+}
+
+export interface ResetPasswordReqDto {
+  token: string;
   newPassword: string;
 }
