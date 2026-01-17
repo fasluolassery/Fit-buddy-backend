@@ -12,6 +12,10 @@ import {
   verifyOtpSchema,
 } from "../validators/auth.validator";
 import { asyncHandler } from "../utils/async-handler.util";
+import {
+  googleAuth,
+  googleCallbackAuth,
+} from "../middlewares/google-auth.middleware";
 
 const router: Router = Router();
 const authController = container.get<IAuthController>(TYPES.IAuthController);
@@ -60,6 +64,12 @@ router.post(
   "/reset-password",
   validate(resetPasswordSchema),
   asyncHandler((req, res) => authController.resetPassword(req, res)),
+);
+
+router.get("/google", googleAuth);
+
+router.get("/google/callback", googleCallbackAuth, (req, res) =>
+  authController.googleCallback(req, res),
 );
 
 export default router;

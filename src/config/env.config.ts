@@ -14,5 +14,8 @@ export const env = {
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
   REFRESH_TOKEN_MAX_AGE: Number(process.env.REFRESH_TOKEN_MAX_AGE),
   NODE_ENV: "",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
+  GOOGLE_CALLBACK_URL: "/api/auth/google/callback",
   FRONTEND_URL: "http://localhost:5173",
 };

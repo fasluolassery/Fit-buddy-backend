@@ -13,6 +13,8 @@ import {
 import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
   ForgotPasswordReqDto,
+  GoogleLoginServiceResDto,
+  GoogleUserPayload,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,
@@ -33,6 +35,8 @@ import { sendOtpMail, sendResetPasswordLink } from "../../utils/mail.util";
 import { generateResetToken, hashToken } from "../../utils/token.util";
 import IPasswordResetRepository from "../../repositories/interfaces/password-reset-repository.interface";
 import { env } from "../../config/env.config";
+import { UserRole } from "../../constants/roles.constant";
+import { IUserDocument } from "../../entities/user.entity";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -248,5 +252,67 @@ export default class AuthService implements IAuthService {
     await this._userRepository.updateById(userId, { password: hashedPassword });
 
     await this._passwordResetRepository.updateById(_id, { usedAt: new Date() });
+  }
+
+  private issueTokens(user: IUserDocument): GoogleLoginServiceResDto {
+    const { _id, role } = user;
+
+    const refreshToken = generateRefreshToken({
+      id: _id.toString(),
+      role,
+    });
+
+    return {
+      refreshToken,
+    };
+  }
+
+  async googleLogin(
+    data: GoogleUserPayload,
+  ): Promise<GoogleLoginServiceResDto> {
+    const { email, googleId, name, intent, role } = data;
+
+    if (!email || !googleId) {
+      throw new BadRequestError("Invalid Google account data");
+    }
+
+    let user = await this._userRepository.findOne({ email });
+
+    if (user) {
+      if (!user.googleId) {
+        throw new ConflictError(
+          "Account exists with email/password. Use normal login.",
+        );
+      }
+
+      if (user.googleId !== googleId) {
+        throw new UnauthorizedError("Google account mismatch");
+      }
+
+      if (!user.isActive) {
+        throw new UnauthorizedError("Account disabled");
+      }
+
+      return this.issueTokens(user);
+    }
+
+    if (intent !== "signup") {
+      throw new UnauthorizedError("Account does not exist");
+    }
+
+    const allowedRoles: UserRole[] = ["user", "trainer"];
+    if (!role || !allowedRoles.includes(role)) {
+      throw new BadRequestError("Role required for signup");
+    }
+
+    const newUser = await this._userRepository.create({
+      email,
+      name,
+      googleId,
+      role,
+      isVerified: true,
+    });
+
+    return this.issueTokens(newUser);
   }
 }

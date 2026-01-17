@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import passport from "./config/passport.config";
 
 const app = express();
 const allowedOrigins = [
@@ -20,6 +21,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(passport.initialize());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -27,6 +29,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+app.use((req, res) => {
+  res.status(404).send("Page not found!");
+});
 
 app.use(errorHandler);
 

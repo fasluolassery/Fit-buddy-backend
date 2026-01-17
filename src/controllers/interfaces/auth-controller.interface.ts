@@ -9,4 +9,5 @@ export default interface IAuthController {
   resendOtp(req: Request, res: Response): Promise<void>;
   forgotPassword(req: Request, res: Response): Promise<void>;
   resetPassword(req: Request, res: Response): Promise<void>;
+  googleCallback(req: Request, res: Response): Promise<void>;
 }

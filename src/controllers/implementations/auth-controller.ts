@@ -7,12 +7,16 @@ import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
 import {
   ForgotPasswordReqDto,
+  GoogleUserPayload,
   LoginReqDto,
   ResetPasswordReqDto,
   SignupReqDto,
   VerifyOtpReqDto,
 } from "../../dto/auth.dto";
 import { refreshTokenCookieOptions } from "../../config/cookie.config";
+import { env } from "../../config/env.config";
+import { mapGoogleAuthError } from "../helpers/map-google-auth-error";
+import { redirectOAuthError } from "../../utils/oauthRedirect.util";
 
 @injectable()
 export default class AuthController implements IAuthController {
@@ -115,5 +119,19 @@ export default class AuthController implements IAuthController {
       success: true,
       message: "Your password has been reset successfully",
     });
+  }
+
+  async googleCallback(req: Request, res: Response): Promise<void> {
+    try {
+      const googleUser = req.user as GoogleUserPayload;
+
+      const { refreshToken } = await this._authService.googleLogin(googleUser);
+      res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
+
+      res.redirect(`${env.FRONTEND_URL}/redirect`);
+    } catch (err) {
+      const code = mapGoogleAuthError(err);
+      return redirectOAuthError(res, "/login", code);
+    }
   }
 }

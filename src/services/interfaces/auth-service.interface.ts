@@ -1,5 +1,7 @@
 import {
   ForgotPasswordReqDto,
+  GoogleLoginServiceResDto,
+  GoogleUserPayload,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,
@@ -17,4 +19,5 @@ export default interface IAuthService {
   resendOtp(email: string): Promise<SignupResDto>;
   forgotPassword(data: ForgotPasswordReqDto): Promise<void>;
   resetPassword(data: ResetPasswordReqDto): Promise<void>;
+  googleLogin(data: GoogleUserPayload): Promise<GoogleLoginServiceResDto>;
 }
