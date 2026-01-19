@@ -25,6 +25,7 @@ export interface VerifyOtpResDto {
 export interface LoginReqDto {
   email: string;
   password: string;
+  loginAs?: "user" | "admin";
 }
 
 export interface LoginServiceResDto {

@@ -5,7 +5,7 @@ export const signupSchema = z.object({
   email: z.email("Invalid email address"),
   phone: z.string().min(10, "Invalid phone number"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["user", "trainer", "admin"]),
+  role: z.enum(["user", "trainer"]),
 });
 
 export const verifyOtpSchema = z.object({
@@ -16,6 +16,7 @@ export const verifyOtpSchema = z.object({
 export const loginSchema = z.object({
   email: z.email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  loginAs: z.enum(["user", "admin"]).optional(),
 });
 
 export const resendOtpSchema = z.object({

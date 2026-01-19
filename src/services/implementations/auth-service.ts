@@ -113,10 +113,14 @@ export default class AuthService implements IAuthService {
   }
 
   async login(data: LoginReqDto): Promise<LoginServiceResDto> {
-    const { email, password } = data;
+    const { email, password, loginAs } = data;
 
     const user = await this._userRepository.findOne({ email });
     if (!user) throw new BadRequestError("Invalid credentials");
+
+    if (loginAs === "admin" && user.role !== "admin") {
+      throw new UnauthorizedError("Admin access only");
+    }
 
     if (!user.isVerified) {
       throw new EmailNotVerifiedError();
