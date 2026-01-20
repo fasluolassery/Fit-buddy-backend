@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { UserDto } from "./user.dto";
 
 export interface SignupReqDto {
   name: string;
@@ -31,11 +31,7 @@ export interface LoginReqDto {
 export interface LoginServiceResDto {
   accessToken: string;
   refreshToken: string;
-  user: {
-    _id: Types.ObjectId;
-    email: string;
-    role: string;
-  };
+  user: UserDto;
 }
 
 export interface ForgotPasswordReqDto {

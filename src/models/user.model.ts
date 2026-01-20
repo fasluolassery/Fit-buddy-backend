@@ -19,9 +19,9 @@ const userSchema: Schema<IUserDocument> = new Schema(
     height: { type: Number },
     weight: { type: Number },
     dietaryPreferences: { type: String },
+    status: { type: String },
     equipments: {
       type: [{ name: { type: String }, quantity: { type: Number } }],
-      default: [],
     },
 
     trainerId: { type: Types.ObjectId },
@@ -29,7 +29,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
     planExpiry: { type: Date },
     hasTrainer: { type: Boolean },
     planActive: { type: Boolean },
-    onboardingComplete: { type: Boolean },
+    onboardingComplete: { type: Boolean, default: false },
 
     isVerified: { type: Boolean },
     isActive: { type: Boolean, default: true },

@@ -3,7 +3,7 @@ import IUserRepository from "../../repositories/interfaces/user-repository.inter
 import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
 import { NotFoundError } from "../../common/errors";
-import { MeServiceDto } from "../../dto/user.dto";
+import { UserDto } from "../../dto/user.dto";
 
 @injectable()
 export default class UserService implements IUserService {
@@ -11,7 +11,7 @@ export default class UserService implements IUserService {
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
   ) {}
 
-  async getMe(userId: string): Promise<MeServiceDto> {
+  async getMe(userId: string): Promise<UserDto> {
     const user = await this._userRepository.findById(userId);
 
     if (!user) {
@@ -21,24 +21,26 @@ export default class UserService implements IUserService {
     const {
       _id,
       name,
-      email,
       role,
+      email,
       profilePhoto,
       onboardingComplete,
       isVerified,
       isActive,
+      status,
       createdAt,
     } = user;
 
     return {
       _id,
       name,
-      email,
       role,
+      email,
       profilePhoto,
       onboardingComplete,
       isVerified,
       isActive,
+      status: role === "trainer" ? status : undefined,
       createdAt,
     };
   }

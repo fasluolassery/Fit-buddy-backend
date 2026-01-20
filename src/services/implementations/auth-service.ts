@@ -131,7 +131,17 @@ export default class AuthService implements IAuthService {
       throw new UnauthorizedError("Invalid credentials");
     }
 
-    const { _id, role } = user;
+    const {
+      _id,
+      role,
+      name,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isActive,
+      status,
+      createdAt,
+    } = user;
 
     const accessToken = generateAccessToken({
       id: _id.toString(),
@@ -150,6 +160,13 @@ export default class AuthService implements IAuthService {
         _id,
         email,
         role,
+        name,
+        profilePhoto,
+        onboardingComplete,
+        isVerified,
+        isActive,
+        status: role === "trainer" ? status : undefined,
+        createdAt,
       },
     };
   }

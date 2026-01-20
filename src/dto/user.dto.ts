@@ -1,13 +1,14 @@
 import { Types } from "mongoose";
 
-export interface MeServiceDto {
+export interface UserDto {
   _id: Types.ObjectId;
-  name: string;
   email: string;
-  role: string;
+  role: "user" | "trainer" | "admin";
+  name?: string;
   profilePhoto?: string | null;
   onboardingComplete: boolean;
   isVerified: boolean;
   isActive: boolean;
+  status?: "active" | "pending" | "rejected";
   createdAt: Date;
 }
