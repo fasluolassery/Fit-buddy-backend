@@ -10,7 +10,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
 
     googleId: { type: String },
     profilePhoto: { type: String },
-    role: { type: String, required: true },
+    role: { type: String, enum: ["user", "trainer", "admin"], required: true },
 
     primaryGoal: { type: String },
     fitnessLevel: { type: String },
@@ -19,22 +19,24 @@ const userSchema: Schema<IUserDocument> = new Schema(
     height: { type: Number },
     weight: { type: Number },
     dietaryPreferences: { type: String },
-    status: { type: String },
+    trainerApprovalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+    },
     equipments: {
       type: [{ name: { type: String }, quantity: { type: Number } }],
+      default: undefined,
     },
 
     trainerId: { type: Types.ObjectId },
     planId: { type: Types.ObjectId },
     planExpiry: { type: Date },
-    hasTrainer: { type: Boolean },
-    planActive: { type: Boolean },
+    hasTrainer: { type: Boolean, default: false },
+    planActive: { type: Boolean, default: false },
     onboardingComplete: { type: Boolean, default: false },
 
-    isVerified: { type: Boolean },
-    isActive: { type: Boolean, default: true },
-    createdAt: { type: Date },
-    updatedAt: { type: Date },
+    isVerified: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false },
   },
   {
     timestamps: true,

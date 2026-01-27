@@ -26,8 +26,8 @@ export default class UserService implements IUserService {
       profilePhoto,
       onboardingComplete,
       isVerified,
-      isActive,
-      status,
+      isBlocked,
+      trainerApprovalStatus,
       createdAt,
     } = user;
 
@@ -39,8 +39,9 @@ export default class UserService implements IUserService {
       profilePhoto,
       onboardingComplete,
       isVerified,
-      isActive,
-      status: role === "trainer" ? status : undefined,
+      isBlocked,
+      trainerApprovalStatus:
+        role === "trainer" ? trainerApprovalStatus : undefined,
       createdAt,
     };
   }

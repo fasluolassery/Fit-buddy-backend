@@ -24,7 +24,7 @@ export interface IUserDocument extends Document {
   weight: number;
   dietaryPreferences?: string;
   equipments?: IEquipmentItem[];
-  status: "active" | "pending" | "rejected";
+  trainerApprovalStatus: "active" | "pending" | "rejected";
 
   trainerId?: Types.ObjectId;
   planId?: Types.ObjectId;
@@ -35,7 +35,7 @@ export interface IUserDocument extends Document {
   onboardingComplete: boolean;
 
   isVerified: boolean;
-  isActive: boolean;
+  isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

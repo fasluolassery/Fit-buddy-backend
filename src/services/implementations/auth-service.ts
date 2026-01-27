@@ -138,8 +138,8 @@ export default class AuthService implements IAuthService {
       profilePhoto,
       onboardingComplete,
       isVerified,
-      isActive,
-      status,
+      isBlocked,
+      trainerApprovalStatus,
       createdAt,
     } = user;
 
@@ -164,8 +164,9 @@ export default class AuthService implements IAuthService {
         profilePhoto,
         onboardingComplete,
         isVerified,
-        isActive,
-        status: role === "trainer" ? status : undefined,
+        isBlocked,
+        trainerApprovalStatus:
+          role === "trainer" ? trainerApprovalStatus : undefined,
         createdAt,
       },
     };
@@ -180,7 +181,7 @@ export default class AuthService implements IAuthService {
     const { id } = payload;
 
     const user = await this._userRepository.findById(id);
-    if (!user || !user.isActive) {
+    if (!user || user.isBlocked) {
       throw new UnauthorizedError("User not authorized");
     }
 
@@ -310,7 +311,7 @@ export default class AuthService implements IAuthService {
         throw new UnauthorizedError("Google account mismatch");
       }
 
-      if (!user.isActive) {
+      if (user.isBlocked) {
         throw new UnauthorizedError("Account disabled");
       }
 

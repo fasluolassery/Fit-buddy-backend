@@ -8,7 +8,7 @@ export interface UserDto {
   profilePhoto?: string | null;
   onboardingComplete: boolean;
   isVerified: boolean;
-  isActive: boolean;
-  status?: "active" | "pending" | "rejected";
+  isBlocked: boolean;
+  trainerApprovalStatus?: "active" | "pending" | "rejected";
   createdAt: Date;
 }
