@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import IUserRepository from "../../repositories/interfaces/user-repository.interface";
 import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
-import { NotFoundError } from "../../common/errors";
+import { BadRequestError, NotFoundError } from "../../common/errors";
 import { UserDto } from "../../dto/user.dto";
 
 @injectable()
@@ -59,5 +59,31 @@ export default class UserService implements IUserService {
       createdAt: user.createdAt,
       profilePhoto: user.profilePhoto,
     }));
+  }
+
+  async blockUser(userId: string): Promise<void> {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) throw new NotFoundError("User not found");
+    if (user.role === "admin")
+      throw new BadRequestError("Admin cannot be blocked");
+    if (user.isBlocked) return;
+
+    const { _id } = user;
+    await this._userRepository.updateById(_id, {
+      isBlocked: true,
+    });
+  }
+
+  async unblockUser(userId: string): Promise<void> {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) throw new NotFoundError("User not found");
+    if (!user.isBlocked) return;
+
+    const { _id } = user;
+    await this._userRepository.updateById(_id, {
+      isBlocked: false,
+    });
   }
 }

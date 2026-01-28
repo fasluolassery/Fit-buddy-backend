@@ -22,4 +22,18 @@ router.get(
   asyncHandler((req, res) => userController.getUsersForAdmin(req, res)),
 );
 
+router.patch(
+  "/admin/users/:id/block",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.blockUser(req, res)),
+);
+
+router.patch(
+  "/admin/users/:id/unblock",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.unblockUser(req, res)),
+);
+
 export default router;

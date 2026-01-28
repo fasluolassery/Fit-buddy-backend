@@ -30,4 +30,26 @@ export default class UserController implements IUserController {
       data,
     });
   }
+
+  async blockUser(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+
+    await this._userService.blockUser(id);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "User blocked successfully",
+    });
+  }
+
+  async unblockUser(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+
+    await this._userService.unblockUser(id);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "User unblocked successfully",
+    });
+  }
 }
