@@ -43,14 +43,6 @@ export interface ResetPasswordReqDto {
   newPassword: string;
 }
 
-export interface GoogleUserPayload {
-  googleId: string;
-  email: string;
-  name: string;
-  intent: "signup" | "login";
-  role: "user" | "trainer";
-}
-
 export interface GoogleLoginServiceResDto {
   refreshToken: string;
 }

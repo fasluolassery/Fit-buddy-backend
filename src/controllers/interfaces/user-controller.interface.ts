@@ -1,6 +1,5 @@
-import { Response } from "express";
-import { AuthRequest } from "../../common/types/auth.types";
+import { Request, Response } from "express";
 
 export default interface IUserController {
-  me(req: AuthRequest, res: Response): Promise<void>;
+  me(req: Request, res: Response): Promise<void>;
 }

@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { env } from "./env.config";
 import { decodeState } from "../utils/oauthState.util";
 import { BadRequestError } from "../common/errors";
+import { UserRole } from "../constants/roles.constant";
 
 passport.use(
   new GoogleStrategy(
@@ -22,7 +23,7 @@ passport.use(
 
         const { intent, role } = decodeState<{
           intent: "login" | "signup";
-          role?: string;
+          role?: UserRole;
         }>(rawState);
 
         if (intent === "signup" && !role) {

@@ -1,4 +1,3 @@
-import { Request } from "express";
 import { UserRole } from "../../constants/roles.constant";
 
 export interface TokenPayload {
@@ -6,9 +5,16 @@ export interface TokenPayload {
   role: UserRole;
 }
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: UserRole;
-  };
-}
+export type JwtUser = {
+  id: string;
+  role: UserRole;
+};
+
+export type GoogleUserPayload = {
+  googleId: string;
+  email: string;
+  name: string;
+  profilePhoto?: string;
+  intent: "login" | "signup";
+  role?: UserRole;
+};

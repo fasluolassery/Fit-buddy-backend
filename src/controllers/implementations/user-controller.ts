@@ -1,16 +1,16 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import IUserController from "../interfaces/user-controller.interface";
-import { AuthRequest } from "../../common/types/auth.types";
 import { inject } from "inversify";
 import TYPES from "../../constants/types";
 import IUserService from "../../services/interfaces/user-service.interface";
 import { HttpStatus } from "../../constants/http-status.constant";
+import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 
 export default class UserController implements IUserController {
   constructor(@inject(TYPES.IUserService) private _userService: IUserService) {}
 
-  async me(req: AuthRequest, res: Response): Promise<void> {
-    const { id } = req.user!;
+  async me(req: Request, res: Response): Promise<void> {
+    const { id } = requireJwtUser(req);
 
     const data = await this._userService.getMe(id);
 

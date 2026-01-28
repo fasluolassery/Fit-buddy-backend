@@ -14,7 +14,6 @@ import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
   ForgotPasswordReqDto,
   GoogleLoginServiceResDto,
-  GoogleUserPayload,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,
@@ -37,6 +36,7 @@ import IPasswordResetRepository from "../../repositories/interfaces/password-res
 import { env } from "../../config/env.config";
 import { UserRole } from "../../constants/roles.constant";
 import { IUserDocument } from "../../entities/user.entity";
+import { GoogleUserPayload } from "../../common/types/auth.types";
 
 @injectable()
 export default class AuthService implements IAuthService {

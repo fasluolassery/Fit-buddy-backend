@@ -1,7 +1,7 @@
+import { GoogleUserPayload } from "../../common/types/auth.types";
 import {
   ForgotPasswordReqDto,
   GoogleLoginServiceResDto,
-  GoogleUserPayload,
   LoginReqDto,
   LoginServiceResDto,
   ResetPasswordReqDto,

@@ -7,7 +7,6 @@ import logger from "../../utils/logger.util";
 import { HttpStatus } from "../../constants/http-status.constant";
 import {
   ForgotPasswordReqDto,
-  GoogleUserPayload,
   LoginReqDto,
   ResetPasswordReqDto,
   SignupReqDto,
@@ -17,6 +16,7 @@ import { refreshTokenCookieOptions } from "../../config/cookie.config";
 import { env } from "../../config/env.config";
 import { mapGoogleAuthError } from "../helpers/map-google-auth-error";
 import { redirectOAuthError } from "../../utils/oauthRedirect.util";
+import { GoogleUserPayload } from "../../common/types/auth.types";
 
 @injectable()
 export default class AuthController implements IAuthController {
