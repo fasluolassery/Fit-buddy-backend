@@ -20,4 +20,14 @@ export default class UserController implements IUserController {
       data,
     });
   }
+
+  async getUsersForAdmin(req: Request, res: Response): Promise<void> {
+    const data = await this._userService.getUsersForAdmin();
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Users fetched successfully",
+      data,
+    });
+  }
 }

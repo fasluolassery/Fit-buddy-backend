@@ -45,4 +45,19 @@ export default class UserService implements IUserService {
       createdAt,
     };
   }
+
+  async getUsersForAdmin(): Promise<UserDto[]> {
+    const users = await this._userRepository.findUserByRole("user");
+    return users.map((user) => ({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      onboardingComplete: user.onboardingComplete,
+      isVerified: user.isVerified,
+      isBlocked: user.isBlocked,
+      createdAt: user.createdAt,
+      profilePhoto: user.profilePhoto,
+    }));
+  }
 }

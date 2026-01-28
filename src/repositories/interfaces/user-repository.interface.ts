@@ -2,5 +2,6 @@
 import { IUserDocument } from "../../entities/user.entity";
 import IBaseRepository from "./base-repository.interface";
 
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-export default interface IUserRepository extends IBaseRepository<IUserDocument> {}
+export default interface IUserRepository extends IBaseRepository<IUserDocument> {
+  findUserByRole(role: "user" | "trainer"): Promise<IUserDocument[]>;
+}

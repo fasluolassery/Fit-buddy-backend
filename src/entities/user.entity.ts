@@ -24,7 +24,7 @@ export interface IUserDocument extends Document {
   weight: number;
   dietaryPreferences?: string;
   equipments?: IEquipmentItem[];
-  trainerApprovalStatus: "active" | "pending" | "rejected";
+  trainerApprovalStatus: "pending" | "approved" | "rejected";
 
   trainerId?: Types.ObjectId;
   planId?: Types.ObjectId;

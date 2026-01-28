@@ -15,4 +15,8 @@ export default class UserRepository
   ) {
     super(_userModel);
   }
+
+  async findUserByRole(role: "user" | "trainer"): Promise<IUserDocument[]> {
+    return this._userModel.find({ role }).sort({ createdAt: -1 });
+  }
 }

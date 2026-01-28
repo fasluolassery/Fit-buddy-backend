@@ -9,6 +9,6 @@ export interface UserDto {
   onboardingComplete: boolean;
   isVerified: boolean;
   isBlocked: boolean;
-  trainerApprovalStatus?: "active" | "pending" | "rejected";
+  trainerApprovalStatus?: "pending" | "approved" | "rejected";
   createdAt: Date;
 }
