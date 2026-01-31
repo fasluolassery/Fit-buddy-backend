@@ -5,6 +5,8 @@ import container from "../config/inversify.config";
 import TYPES from "../constants/types";
 import IUserController from "../controllers/interfaces/user-controller.interface";
 import { requireRole } from "../middlewares/role.middleware";
+import { validate } from "../middlewares/validate.middleware";
+import { userOnboardingSchema } from "../validators/onboarding.validator";
 
 const router = Router();
 const userController = container.get<IUserController>(TYPES.IUserController);
@@ -13,6 +15,14 @@ router.get(
   "/me",
   authMiddleware,
   asyncHandler((req, res) => userController.me(req, res)),
+);
+
+router.patch(
+  "/onboarding/user",
+  authMiddleware,
+  requireRole("user"),
+  validate(userOnboardingSchema),
+  asyncHandler((req, res) => userController.userOnboarding(req, res)),
 );
 
 router.get(

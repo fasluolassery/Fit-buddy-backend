@@ -52,4 +52,16 @@ export default class UserController implements IUserController {
       message: "User unblocked successfully",
     });
   }
+  async userOnboarding(req: Request, res: Response): Promise<void> {
+    const { id } = requireJwtUser(req);
+
+    const dto = req.body;
+    const data = await this._userService.userOnboarding(id, dto);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "User onboarding completed successfully",
+      data,
+    });
+  }
 }

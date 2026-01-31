@@ -19,7 +19,7 @@ export interface IUserDocument extends Document {
   primaryGoal: string;
   fitnessLevel?: string;
   gender: string;
-  dob: Date;
+  age: number;
   height: number;
   weight: number;
   dietaryPreferences?: string;

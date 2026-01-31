@@ -4,6 +4,7 @@ import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
 import { BadRequestError, NotFoundError } from "../../common/errors";
 import { UserDto } from "../../dto/user.dto";
+import { UserOnboardingDTO } from "../../validators/onboarding.validator";
 
 @injectable()
 export default class UserService implements IUserService {
@@ -84,6 +85,39 @@ export default class UserService implements IUserService {
     const { _id } = user;
     await this._userRepository.updateById(_id, {
       isBlocked: false,
+    });
+  }
+
+  async userOnboarding(userId: string, payload: UserOnboardingDTO) {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) throw new NotFoundError("User not found");
+    if (user.onboardingComplete)
+      throw new BadRequestError("User onboarding already completed");
+
+    const { _id } = user;
+
+    const {
+      primaryGoal,
+      fitnessLevel,
+      gender,
+      age,
+      height,
+      weight,
+      dietaryPreferences,
+      equipments,
+    } = payload;
+
+    await this._userRepository.updateById(_id, {
+      primaryGoal,
+      fitnessLevel,
+      gender,
+      age,
+      height,
+      weight,
+      dietaryPreferences,
+      equipments,
+      onboardingComplete: true,
     });
   }
 }
