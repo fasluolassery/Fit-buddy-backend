@@ -2,14 +2,25 @@ import { inject, injectable } from "inversify";
 import IUserRepository from "../../repositories/interfaces/user-repository.interface";
 import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
-import { BadRequestError, NotFoundError } from "../../common/errors";
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from "../../common/errors";
 import { UserDto } from "../../dto/user.dto";
-import { UserOnboardingDTO } from "../../validators/onboarding.validator";
+import {
+  TrainerOnboardingDTO,
+  UserOnboardingDTO,
+} from "../../validators/onboarding.validator";
+import ITrainerRepository from "../../repositories/interfaces/trainer-repository.interface";
 
 @injectable()
 export default class UserService implements IUserService {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
+    @inject(TYPES.ITrainerRepository)
+    private _trainerRepository: ITrainerRepository,
   ) {}
 
   async getMe(userId: string): Promise<UserDto> {
@@ -149,6 +160,70 @@ export default class UserService implements IUserService {
       isBlocked,
       trainerApprovalStatus:
         role === "trainer" ? trainerApprovalStatus : undefined,
+      createdAt,
+    };
+  }
+
+  async trainerOnboarding(
+    userId: string,
+    payload: TrainerOnboardingDTO,
+    profilePhoto: Express.Multer.File[],
+    certificates: Express.Multer.File[],
+  ): Promise<UserDto> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) throw new NotFoundError("User not found");
+
+    if (user.role !== "trainer") {
+      throw new ValidationError(
+        "Only trainers can complete trainer onboarding",
+      );
+    }
+
+    if (user.onboardingComplete)
+      throw new ConflictError("Trainer onboarding already completed");
+
+    const { _id } = user;
+    const { bio, specializations, experience } = payload;
+
+    const profilePhotoPath = profilePhoto[0].path;
+    const certificatePaths = certificates.map((file) => file.path);
+
+    await this._trainerRepository.create({
+      userId: _id,
+      bio,
+      specializations,
+      experienceYears: experience,
+      certificates: certificatePaths,
+    });
+
+    user.profilePhoto = profilePhotoPath;
+    user.trainerApprovalStatus = "pending";
+    user.onboardingComplete = true;
+
+    await user.save();
+
+    const {
+      name,
+      role,
+      email,
+      profilePhoto: savedProfilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus,
+      createdAt,
+    } = user;
+
+    return {
+      _id,
+      name,
+      role,
+      email,
+      profilePhoto: savedProfilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus,
       createdAt,
     };
   }
