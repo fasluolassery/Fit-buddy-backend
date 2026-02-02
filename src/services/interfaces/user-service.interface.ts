@@ -6,5 +6,5 @@ export default interface IUserService {
   getUsersForAdmin(): Promise<UserDto[]>;
   blockUser(userId: string): Promise<void>;
   unblockUser(userId: string): Promise<void>;
-  userOnboarding(userId: string, payload: UserOnboardingDTO): Promise<void>;
+  userOnboarding(userId: string, payload: UserOnboardingDTO): Promise<UserDto>;
 }

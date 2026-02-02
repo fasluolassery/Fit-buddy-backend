@@ -52,6 +52,7 @@ export default class UserController implements IUserController {
       message: "User unblocked successfully",
     });
   }
+
   async userOnboarding(req: Request, res: Response): Promise<void> {
     const { id } = requireJwtUser(req);
 

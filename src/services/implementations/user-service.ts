@@ -88,12 +88,16 @@ export default class UserService implements IUserService {
     });
   }
 
-  async userOnboarding(userId: string, payload: UserOnboardingDTO) {
+  async userOnboarding(
+    userId: string,
+    payload: UserOnboardingDTO,
+  ): Promise<UserDto> {
     const user = await this._userRepository.findById(userId);
 
     if (!user) throw new NotFoundError("User not found");
-    if (user.onboardingComplete)
+    if (user.onboardingComplete) {
       throw new BadRequestError("User onboarding already completed");
+    }
 
     const { _id } = user;
 
@@ -108,7 +112,7 @@ export default class UserService implements IUserService {
       equipments,
     } = payload;
 
-    await this._userRepository.updateById(_id, {
+    const updatedUser = await this._userRepository.updateById(_id, {
       primaryGoal,
       fitnessLevel,
       gender,
@@ -119,5 +123,33 @@ export default class UserService implements IUserService {
       equipments,
       onboardingComplete: true,
     });
+
+    if (!updatedUser) throw new NotFoundError("User not found after update");
+
+    const {
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus,
+      createdAt,
+    } = updatedUser;
+
+    return {
+      _id,
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus:
+        role === "trainer" ? trainerApprovalStatus : undefined,
+      createdAt,
+    };
   }
 }

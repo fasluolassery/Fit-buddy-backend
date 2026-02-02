@@ -6,7 +6,7 @@ export const userOnboardingSchema = z.object({
     .min(2, "Primary goal must be at least 2 characters")
     .max(100, "Primary goal must not exceed 100 characters"),
 
-  fitnessLevel: z.enum(["beginner", "intermediate", "advanced"], {
+  fitnessLevel: z.enum(["Beginner", "Intermediate", "Advanced"], {
     message: "Fitness level must be beginner, intermediate, or advanced",
   }),
 
