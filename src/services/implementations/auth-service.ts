@@ -116,19 +116,16 @@ export default class AuthService implements IAuthService {
     const { email, password, loginAs } = data;
 
     const user = await this._userRepository.findOne({ email });
-    if (!user) throw new BadRequestError("Invalid credentials");
+    if (!user) throw new UnauthorizedError("Invalid credentials");
+
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) throw new UnauthorizedError("Invalid credentials");
+
+    if (!user.isVerified) throw new EmailNotVerifiedError();
+    if (user.isBlocked) throw new UnauthorizedError("Account is blocked");
 
     if (loginAs === "admin" && user.role !== "admin") {
       throw new UnauthorizedError("Admin access only");
-    }
-
-    if (!user.isVerified) {
-      throw new EmailNotVerifiedError();
-    }
-
-    const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedError("Invalid credentials");
     }
 
     const {
