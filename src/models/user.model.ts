@@ -15,7 +15,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
     primaryGoal: { type: String },
     fitnessLevel: { type: String },
     gender: { type: String },
-    dob: { type: Date },
+    age: { type: Number },
     height: { type: Number },
     weight: { type: Number },
     dietaryPreferences: { type: String },
@@ -24,7 +24,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
       enum: ["pending", "approved", "rejected"],
     },
     equipments: {
-      type: [{ name: { type: String }, quantity: { type: Number } }],
+      type: [{ type: String }],
       default: undefined,
     },
 

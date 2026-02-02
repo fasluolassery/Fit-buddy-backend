@@ -4,6 +4,7 @@ import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
 import { BadRequestError, NotFoundError } from "../../common/errors";
 import { UserDto } from "../../dto/user.dto";
+import { UserOnboardingDTO } from "../../validators/onboarding.validator";
 
 @injectable()
 export default class UserService implements IUserService {
@@ -85,5 +86,70 @@ export default class UserService implements IUserService {
     await this._userRepository.updateById(_id, {
       isBlocked: false,
     });
+  }
+
+  async userOnboarding(
+    userId: string,
+    payload: UserOnboardingDTO,
+  ): Promise<UserDto> {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) throw new NotFoundError("User not found");
+    if (user.onboardingComplete) {
+      throw new BadRequestError("User onboarding already completed");
+    }
+
+    const { _id } = user;
+
+    const {
+      primaryGoal,
+      fitnessLevel,
+      gender,
+      age,
+      height,
+      weight,
+      dietaryPreferences,
+      equipments,
+    } = payload;
+
+    const updatedUser = await this._userRepository.updateById(_id, {
+      primaryGoal,
+      fitnessLevel,
+      gender,
+      age,
+      height,
+      weight,
+      dietaryPreferences,
+      equipments,
+      onboardingComplete: true,
+    });
+
+    if (!updatedUser) throw new NotFoundError("User not found after update");
+
+    const {
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus,
+      createdAt,
+    } = updatedUser;
+
+    return {
+      _id,
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus:
+        role === "trainer" ? trainerApprovalStatus : undefined,
+      createdAt,
+    };
   }
 }
