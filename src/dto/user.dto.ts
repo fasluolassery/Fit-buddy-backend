@@ -10,6 +10,8 @@ export interface UserDto {
   isVerified: boolean;
   isBlocked: boolean;
   trainerApprovalStatus?: "pending" | "approved" | "rejected";
+  trainerRejectionReason?: string | null;
+
   createdAt: Date;
 }
 

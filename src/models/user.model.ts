@@ -23,6 +23,7 @@ const userSchema: Schema<IUserDocument> = new Schema(
       type: String,
       enum: ["pending", "approved", "rejected"],
     },
+    trainerRejectionReason: { type: String },
     equipments: {
       type: [{ type: String }],
       default: undefined,

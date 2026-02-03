@@ -68,4 +68,18 @@ router.patch(
   asyncHandler((req, res) => userController.unblockUser(req, res)),
 );
 
+router.patch(
+  "/admin/trainers/:id/approve",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.approveTrainer(req, res)),
+);
+
+router.patch(
+  "/admin/trainers/:id/reject",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.rejectTrainer(req, res)),
+);
+
 export default router;

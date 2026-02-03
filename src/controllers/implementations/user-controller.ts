@@ -101,4 +101,27 @@ export default class UserController implements IUserController {
       data,
     });
   }
+
+  async approveTrainer(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+
+    await this._userService.approveTrainer(id);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Trainer approved successfully",
+    });
+  }
+
+  async rejectTrainer(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    await this._userService.rejectTrainer(id, reason);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Trainer rejected successfully",
+    });
+  }
 }

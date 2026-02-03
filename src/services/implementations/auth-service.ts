@@ -137,6 +137,7 @@ export default class AuthService implements IAuthService {
       isVerified,
       isBlocked,
       trainerApprovalStatus,
+      trainerRejectionReason,
       createdAt,
     } = user;
 
@@ -164,6 +165,7 @@ export default class AuthService implements IAuthService {
         isBlocked,
         trainerApprovalStatus:
           role === "trainer" ? trainerApprovalStatus : undefined,
+        trainerRejectionReason,
         createdAt,
       },
     };

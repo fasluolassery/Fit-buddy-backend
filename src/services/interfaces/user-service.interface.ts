@@ -17,4 +17,6 @@ export default interface IUserService {
     profilePhoto: Express.Multer.File[],
     certificates: Express.Multer.File[],
   ): Promise<UserDto>;
+  approveTrainer(userId: string): Promise<void>;
+  rejectTrainer(userId: string, reason: string): Promise<void>;
 }

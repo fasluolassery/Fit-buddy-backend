@@ -8,4 +8,6 @@ export default interface IUserController {
   getTrainersForAdmin(req: Request, res: Response): Promise<void>;
   blockUser(req: Request, res: Response): Promise<void>;
   unblockUser(req: Request, res: Response): Promise<void>;
+  approveTrainer(req: Request, res: Response): Promise<void>;
+  rejectTrainer(req: Request, res: Response): Promise<void>;
 }
