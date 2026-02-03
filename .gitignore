@@ -36,6 +36,7 @@ frontend/dist/
 # Backend
 backend/node_modules/
 backend/dist/
+uploads/
 
 # If using pnpm/yarn workspaces
 pnpm-lock.yaml

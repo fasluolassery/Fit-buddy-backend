@@ -40,4 +40,18 @@ export const userOnboardingSchema = z.object({
     .min(1, "At least one equipment must be provided"),
 });
 
+export const trainerOnboardingSchema = z.object({
+  bio: z
+    .string()
+    .min(10, "Bio must be at least 10 characters")
+    .max(500, "Bio must not exceed 500 characters"),
+
+  experience: z.string().regex(/^\d+$/, "Experience must be a number of years"),
+
+  specializations: z
+    .array(z.string().min(2, "Specialization too short"))
+    .min(1, "At least one specialization is required"),
+});
+
 export type UserOnboardingDTO = z.infer<typeof userOnboardingSchema>;
+export type TrainerOnboardingDTO = z.infer<typeof trainerOnboardingSchema>;

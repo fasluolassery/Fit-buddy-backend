@@ -17,13 +17,25 @@ import UserController from "../controllers/implementations/user-controller";
 import passwordResetModel from "../models/password-reset.model";
 import PasswordResetRepository from "../repositories/implementations/password-reset-repository";
 import IPasswordResetRepository from "../repositories/interfaces/password-reset-repository.interface";
+import ITrainerRepository from "../repositories/interfaces/trainer-repository.interface";
+import trainerModel from "../models/trainer.model";
+import TrainerRepository from "../repositories/implementations/trainer-repository";
 
 const container = new Container();
 
 container.bind(TYPES.userModel).toConstantValue(userModel);
+container.bind(TYPES.trainerModel).toConstantValue(trainerModel);
+
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
+container
+  .bind<ITrainerRepository>(TYPES.ITrainerRepository)
+  .to(TrainerRepository);
+
 container.bind<IAuthController>(TYPES.IAuthController).to(AuthController);
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
+
+container.bind<IUserService>(TYPES.IUserService).to(UserService);
+container.bind<IUserController>(TYPES.IUserController).to(UserController);
 
 container.bind(TYPES.otpModel).toConstantValue(otpModel);
 container.bind<IOtpRepository>(TYPES.IOtpRepository).to(OtpRepository);
@@ -32,8 +44,5 @@ container.bind(TYPES.passwordResetModel).toConstantValue(passwordResetModel);
 container
   .bind<IPasswordResetRepository>(TYPES.IPasswordResetRepository)
   .to(PasswordResetRepository);
-
-container.bind<IUserService>(TYPES.IUserService).to(UserService);
-container.bind<IUserController>(TYPES.IUserController).to(UserController);
 
 export default container;

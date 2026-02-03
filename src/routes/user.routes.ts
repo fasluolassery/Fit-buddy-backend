@@ -6,7 +6,12 @@ import TYPES from "../constants/types";
 import IUserController from "../controllers/interfaces/user-controller.interface";
 import { requireRole } from "../middlewares/role.middleware";
 import { validate } from "../middlewares/validate.middleware";
-import { userOnboardingSchema } from "../validators/onboarding.validator";
+import {
+  trainerOnboardingSchema,
+  userOnboardingSchema,
+} from "../validators/onboarding.validator";
+import { multerFields, upload } from "../config/multer.config";
+import { requireFiles } from "../middlewares/validate-files.middleware";
 
 const router = Router();
 const userController = container.get<IUserController>(TYPES.IUserController);
@@ -23,6 +28,16 @@ router.patch(
   requireRole("user"),
   validate(userOnboardingSchema),
   asyncHandler((req, res) => userController.userOnboarding(req, res)),
+);
+
+router.patch(
+  "/onboarding/trainer",
+  authMiddleware,
+  requireRole("trainer"),
+  upload.fields(multerFields),
+  validate(trainerOnboardingSchema),
+  requireFiles({ profilePhoto: true, certificates: true }),
+  asyncHandler((req, res) => userController.trainerOnboarding(req, res)),
 );
 
 router.get(
