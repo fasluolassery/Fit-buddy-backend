@@ -33,6 +33,16 @@ export default class UserController implements IUserController {
     });
   }
 
+  async getTrainersForAdmin(req: Request, res: Response): Promise<void> {
+    const data = await this._userService.getTrainersForAdmin();
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Trainers fetched successfully",
+      data,
+    });
+  }
+
   async blockUser(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 

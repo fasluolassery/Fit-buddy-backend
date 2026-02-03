@@ -3,4 +3,5 @@ import IBaseRepository from "./base-repository.interface";
 
 export default interface ITrainerRepository extends IBaseRepository<ITrainerDocument> {
   findByUserId(userId: string): Promise<ITrainerDocument | null>;
+  findByUserIds(userIds: string[]): Promise<ITrainerDocument[]>;
 }

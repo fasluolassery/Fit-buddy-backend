@@ -11,12 +11,19 @@ export default class TrainerRepository
   implements ITrainerRepository
 {
   constructor(
-    @inject(TYPES.trainerModel) private _trainerModel: Model<ITrainerDocument>,
+    @inject(TYPES.trainerModel)
+    private _trainerModel: Model<ITrainerDocument>,
   ) {
     super(_trainerModel);
   }
 
   async findByUserId(userId: string): Promise<ITrainerDocument | null> {
     return this._trainerModel.findOne({ userId });
+  }
+
+  async findByUserIds(userIds: string[]): Promise<ITrainerDocument[]> {
+    return this._trainerModel.find({
+      userId: { $in: userIds },
+    });
   }
 }

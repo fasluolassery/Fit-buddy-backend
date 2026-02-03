@@ -1,4 +1,4 @@
-import { UserDto } from "../../dto/user.dto";
+import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
 import {
   TrainerOnboardingDTO,
   UserOnboardingDTO,
@@ -7,6 +7,7 @@ import {
 export default interface IUserService {
   getMe(userId: string): Promise<UserDto>;
   getUsersForAdmin(): Promise<UserDto[]>;
+  getTrainersForAdmin(): Promise<AdminTrainerDto[]>;
   blockUser(userId: string): Promise<void>;
   unblockUser(userId: string): Promise<void>;
   userOnboarding(userId: string, payload: UserOnboardingDTO): Promise<UserDto>;

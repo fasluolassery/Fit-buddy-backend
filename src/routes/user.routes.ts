@@ -47,6 +47,13 @@ router.get(
   asyncHandler((req, res) => userController.getUsersForAdmin(req, res)),
 );
 
+router.get(
+  "/admin/trainers",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.getTrainersForAdmin(req, res)),
+);
+
 router.patch(
   "/admin/users/:id/block",
   authMiddleware,
