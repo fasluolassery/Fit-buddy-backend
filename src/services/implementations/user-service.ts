@@ -8,7 +8,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "../../common/errors";
-import { UserDto } from "../../dto/user.dto";
+import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
 import {
   TrainerOnboardingDTO,
   UserOnboardingDTO,
@@ -40,6 +40,7 @@ export default class UserService implements IUserService {
       isVerified,
       isBlocked,
       trainerApprovalStatus,
+      trainerRejectionReason,
       createdAt,
     } = user;
 
@@ -54,6 +55,7 @@ export default class UserService implements IUserService {
       isBlocked,
       trainerApprovalStatus:
         role === "trainer" ? trainerApprovalStatus : undefined,
+      trainerRejectionReason,
       createdAt,
     };
   }
@@ -71,6 +73,37 @@ export default class UserService implements IUserService {
       createdAt: user.createdAt,
       profilePhoto: user.profilePhoto,
     }));
+  }
+
+  async getTrainersForAdmin(): Promise<AdminTrainerDto[]> {
+    const trainerUsers = await this._userRepository.findUserByRole("trainer");
+
+    const trainerProfiles = await this._trainerRepository.findByUserIds(
+      trainerUsers.map((u) => u._id.toString()),
+    );
+
+    const trainerMap = new Map(
+      trainerProfiles.map((t) => [t.userId.toString(), t]),
+    );
+
+    return trainerUsers.map((user) => {
+      const trainer = trainerMap.get(user._id.toString());
+
+      return {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePhoto: user.profilePhoto ?? null,
+
+        trainerApprovalStatus: user.trainerApprovalStatus,
+        isVerified: user.isVerified,
+        isBlocked: user.isBlocked,
+
+        rating: trainer?.rating ?? 0,
+        experienceYears: trainer?.experienceYears ?? "0",
+        createdAt: user.createdAt,
+      };
+    });
   }
 
   async blockUser(userId: string): Promise<void> {
@@ -146,6 +179,7 @@ export default class UserService implements IUserService {
       isVerified,
       isBlocked,
       trainerApprovalStatus,
+      trainerRejectionReason,
       createdAt,
     } = updatedUser;
 
@@ -160,6 +194,7 @@ export default class UserService implements IUserService {
       isBlocked,
       trainerApprovalStatus:
         role === "trainer" ? trainerApprovalStatus : undefined,
+      trainerRejectionReason,
       createdAt,
     };
   }
@@ -211,6 +246,7 @@ export default class UserService implements IUserService {
       isVerified,
       isBlocked,
       trainerApprovalStatus,
+      trainerRejectionReason,
       createdAt,
     } = user;
 
@@ -224,7 +260,82 @@ export default class UserService implements IUserService {
       isVerified,
       isBlocked,
       trainerApprovalStatus,
+      trainerRejectionReason,
       createdAt,
     };
+  }
+
+  async approveTrainer(userId: string): Promise<void> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) throw new NotFoundError("User not found");
+
+    if (user.role !== "trainer") {
+      throw new BadRequestError("User is not a trainer");
+    }
+
+    if (user.isBlocked) {
+      throw new BadRequestError("Blocked trainer cannot be approved");
+    }
+
+    if (user.trainerApprovalStatus === "approved") {
+      return;
+    }
+
+    if (user.trainerApprovalStatus !== "pending") {
+      throw new BadRequestError(
+        `Trainer cannot be approved from status '${user.trainerApprovalStatus}'`,
+      );
+    }
+
+    const trainerProfile = await this._trainerRepository.findByUserId(
+      user._id.toString(),
+    );
+
+    if (!trainerProfile) {
+      throw new NotFoundError("Trainer profile not found for this user");
+    }
+
+    await this._userRepository.updateById(user._id, {
+      trainerApprovalStatus: "approved",
+      trainerRejectionReason: null,
+    });
+  }
+
+  async rejectTrainer(userId: string, reason: string): Promise<void> {
+    if (!reason || reason.trim().length < 3) {
+      throw new BadRequestError("Rejection reason is required");
+    }
+
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    if (user.role !== "trainer") {
+      throw new BadRequestError("User is not a trainer");
+    }
+
+    if (user.trainerApprovalStatus === "rejected") {
+      return;
+    }
+    if (user.trainerApprovalStatus !== "pending") {
+      throw new BadRequestError(
+        `Trainer cannot be rejected from status '${user.trainerApprovalStatus}'`,
+      );
+    }
+
+    const trainerProfile = await this._trainerRepository.findByUserId(
+      user._id.toString(),
+    );
+
+    if (!trainerProfile) {
+      throw new NotFoundError("Trainer profile not found for this user");
+    }
+
+    await this._userRepository.updateById(user._id, {
+      trainerApprovalStatus: "rejected",
+      trainerRejectionReason: reason,
+    });
   }
 }

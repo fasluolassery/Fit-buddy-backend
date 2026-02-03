@@ -10,5 +10,22 @@ export interface UserDto {
   isVerified: boolean;
   isBlocked: boolean;
   trainerApprovalStatus?: "pending" | "approved" | "rejected";
+  trainerRejectionReason?: string | null;
+
+  createdAt: Date;
+}
+
+export interface AdminTrainerDto {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  profilePhoto?: string | null;
+
+  trainerApprovalStatus: "pending" | "approved" | "rejected";
+  isVerified: boolean;
+  isBlocked: boolean;
+
+  rating: number;
+  experienceYears: string;
   createdAt: Date;
 }

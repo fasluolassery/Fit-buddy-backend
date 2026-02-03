@@ -1,4 +1,4 @@
-import { UserDto } from "../../dto/user.dto";
+import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
 import {
   TrainerOnboardingDTO,
   UserOnboardingDTO,
@@ -7,6 +7,7 @@ import {
 export default interface IUserService {
   getMe(userId: string): Promise<UserDto>;
   getUsersForAdmin(): Promise<UserDto[]>;
+  getTrainersForAdmin(): Promise<AdminTrainerDto[]>;
   blockUser(userId: string): Promise<void>;
   unblockUser(userId: string): Promise<void>;
   userOnboarding(userId: string, payload: UserOnboardingDTO): Promise<UserDto>;
@@ -16,4 +17,6 @@ export default interface IUserService {
     profilePhoto: Express.Multer.File[],
     certificates: Express.Multer.File[],
   ): Promise<UserDto>;
+  approveTrainer(userId: string): Promise<void>;
+  rejectTrainer(userId: string, reason: string): Promise<void>;
 }

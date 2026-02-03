@@ -47,6 +47,13 @@ router.get(
   asyncHandler((req, res) => userController.getUsersForAdmin(req, res)),
 );
 
+router.get(
+  "/admin/trainers",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.getTrainersForAdmin(req, res)),
+);
+
 router.patch(
   "/admin/users/:id/block",
   authMiddleware,
@@ -59,6 +66,20 @@ router.patch(
   authMiddleware,
   requireRole("admin"),
   asyncHandler((req, res) => userController.unblockUser(req, res)),
+);
+
+router.patch(
+  "/admin/trainers/:id/approve",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.approveTrainer(req, res)),
+);
+
+router.patch(
+  "/admin/trainers/:id/reject",
+  authMiddleware,
+  requireRole("admin"),
+  asyncHandler((req, res) => userController.rejectTrainer(req, res)),
 );
 
 export default router;
