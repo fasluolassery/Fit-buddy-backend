@@ -16,7 +16,7 @@ const trainercontroller = container.get<ITrainerController>(
 );
 
 router.patch(
-  "/onboarding/trainer",
+  "/onboarding",
   authMiddleware,
   requireRole("trainer"),
   upload.fields(multerFields),
@@ -24,3 +24,5 @@ router.patch(
   requireFiles({ profilePhoto: true, certificates: true }),
   asyncHandler((req, res) => trainercontroller.onboardTrainer(req, res)),
 );
+
+export default router;

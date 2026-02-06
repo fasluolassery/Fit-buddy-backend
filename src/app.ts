@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import trainerRoutes from "./routes/trainer.routes";
 import adminRoutes from "./routes/admin.routes";
 import passport from "./config/passport.config";
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/trainers", trainerRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use((req, res) => {

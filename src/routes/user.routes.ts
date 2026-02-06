@@ -12,7 +12,7 @@ const router = Router();
 const userController = container.get<IUserController>(TYPES.IUserController);
 
 router.patch(
-  "/onboarding/user",
+  "/onboarding",
   authMiddleware,
   requireRole("user"),
   validate(userOnboardingSchema),
