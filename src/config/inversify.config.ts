@@ -20,6 +20,14 @@ import IPasswordResetRepository from "../repositories/interfaces/password-reset-
 import ITrainerRepository from "../repositories/interfaces/trainer-repository.interface";
 import trainerModel from "../models/trainer.model";
 import TrainerRepository from "../repositories/implementations/trainer-repository";
+import IAdminService from "../services/interfaces/admin-service.interface";
+import AdminController from "../controllers/implementations/admin-controller";
+import IAdminController from "../controllers/interfaces/admin-controller.interface";
+import AdminService from "../services/implementations/admin-service";
+import ITrainerController from "../controllers/interfaces/trainer-controller.interface";
+import TrainerController from "../controllers/implementations/trainer-controller";
+import ITrainerService from "../services/interfaces/trainer-service.interface";
+import TrainerService from "../services/implementations/trainer-service";
 
 const container = new Container();
 
@@ -36,6 +44,14 @@ container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
 
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
 container.bind<IUserController>(TYPES.IUserController).to(UserController);
+
+container.bind<IAdminController>(TYPES.IAdminController).to(AdminController);
+container.bind<IAdminService>(TYPES.IAdminService).to(AdminService);
+
+container
+  .bind<ITrainerController>(TYPES.ITrainerController)
+  .to(TrainerController);
+container.bind<ITrainerService>(TYPES.ITrainerService).to(TrainerService);
 
 container.bind(TYPES.otpModel).toConstantValue(otpModel);
 container.bind<IOtpRepository>(TYPES.IOtpRepository).to(OtpRepository);

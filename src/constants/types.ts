@@ -11,6 +11,12 @@ const TYPES = {
   IUserService: Symbol.for("IUserService"),
   IUserController: Symbol.for("IUserController"),
 
+  IAdminService: Symbol.for("IAdminService"),
+  IAdminController: Symbol.for("IAdminController"),
+
+  ITrainerService: Symbol.for("ITrainerService"),
+  ITrainerController: Symbol.for("ITrainerController"),
+
   otpModel: Symbol.for("otpModel"),
   IOtpRepository: Symbol.for("IOtpRepository"),
 

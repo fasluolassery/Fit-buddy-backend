@@ -16,6 +16,7 @@ import {
   googleAuth,
   googleCallbackAuth,
 } from "../middlewares/google-auth.middleware";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router: Router = Router();
 const authController = container.get<IAuthController>(TYPES.IAuthController);
@@ -41,6 +42,12 @@ router.post(
 router.post(
   "/refresh",
   asyncHandler((req, res) => authController.refresh(req, res)),
+);
+
+router.get(
+  "/me",
+  authMiddleware,
+  asyncHandler((req, res) => authController.getCurrentUser(req, res)),
 );
 
 router.post(
