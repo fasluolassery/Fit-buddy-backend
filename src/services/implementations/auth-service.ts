@@ -8,6 +8,7 @@ import {
   ConflictError,
   UnauthorizedError,
   EmailNotVerifiedError,
+  NotFoundError,
 } from "../../common/errors";
 import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
@@ -37,6 +38,7 @@ import { UserRole } from "../../constants/roles.constant";
 import { IUserDocument } from "../../entities/user.entity";
 import { GoogleUserPayload } from "../../common/types/auth.types";
 import { AUTH_MESSAGES, COMMON_MESSAGES } from "../../constants/messages";
+import { UserDto } from "../../dto/user.dto";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -201,6 +203,43 @@ export default class AuthService implements IAuthService {
     });
 
     return { accessToken };
+  }
+
+  async getCurrentUser(userId: string): Promise<UserDto> {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) {
+      throw new NotFoundError(AUTH_MESSAGES.USER_NOT_FOUND);
+    }
+
+    const {
+      _id,
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus,
+      trainerRejectionReason,
+      createdAt,
+    } = user;
+
+    return {
+      _id,
+      name,
+      role,
+      email,
+      profilePhoto,
+      onboardingComplete,
+      isVerified,
+      isBlocked,
+      trainerApprovalStatus:
+        role === "trainer" ? trainerApprovalStatus : undefined,
+      trainerRejectionReason,
+      createdAt,
+    };
   }
 
   async resendOtp(email: string): Promise<SignupResDto> {

@@ -18,6 +18,7 @@ import { mapGoogleAuthError } from "../helpers/map-google-auth-error";
 import { redirectOAuthError } from "../../utils/oauthRedirect.util";
 import { GoogleUserPayload } from "../../common/types/auth.types";
 import { AUTH_MESSAGES } from "../../constants/messages";
+import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 
 @injectable()
 export default class AuthController implements IAuthController {
@@ -76,6 +77,18 @@ export default class AuthController implements IAuthController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: AUTH_MESSAGES.TOKEN_REFRESH_SUCCESS,
+      data,
+    });
+  }
+
+  async getCurrentUser(req: Request, res: Response): Promise<void> {
+    const { id } = requireJwtUser(req);
+
+    const data = await this._authService.getCurrentUser(id);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: AUTH_MESSAGES.CURRENT_USER_FETCHED,
       data,
     });
   }

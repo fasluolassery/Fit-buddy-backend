@@ -6,6 +6,8 @@ export const AUTH_MESSAGES = {
   LOGIN_SUCCESS: "Login successful.",
   LOGOUT_SUCCESS: "You have been logged out successfully.",
   TOKEN_REFRESH_SUCCESS: "Session refreshed successfully.",
+  CURRENT_USER_FETCHED: "Authenticated user fetched successfully",
+  USER_NOT_FOUND: "Authenticated user not found",
   PASSWORD_RESET_LINK_SENT:
     "A password reset link has been sent to your email.",
   PASSWORD_RESET_SUCCESS: "Your password has been reset successfully.",
