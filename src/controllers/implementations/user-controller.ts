@@ -7,6 +7,11 @@ import { HttpStatus } from "../../constants/http-status.constant";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 import { TrainerMulterFiles } from "../../middlewares/validate-files.middleware";
 import { TrainerOnboardingDTO } from "../../validators/onboarding.validator";
+import {
+  ADMIN_MESSAGES,
+  TRAINER_MESSAGES,
+  USER_MESSAGES,
+} from "../../constants/messages";
 
 export default class UserController implements IUserController {
   constructor(@inject(TYPES.IUserService) private _userService: IUserService) {}
@@ -18,7 +23,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "User Data fetched successfully",
+      message: USER_MESSAGES.FETCH_ME_SUCCESS,
       data,
     });
   }
@@ -28,7 +33,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Users fetched successfully",
+      message: ADMIN_MESSAGES.USERS_FETCHED,
       data,
     });
   }
@@ -38,7 +43,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Trainers fetched successfully",
+      message: ADMIN_MESSAGES.TRAINERS_FETCHED,
       data,
     });
   }
@@ -50,7 +55,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "User blocked successfully",
+      message: ADMIN_MESSAGES.USER_BLOCKED,
     });
   }
 
@@ -61,7 +66,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "User unblocked successfully",
+      message: ADMIN_MESSAGES.USER_UNBLOCKED,
     });
   }
 
@@ -73,7 +78,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "User onboarding completed successfully",
+      message: USER_MESSAGES.ONBOARDING_SUCCESS,
       data,
     });
   }
@@ -97,7 +102,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Trainer onboarding completed successfully",
+      message: TRAINER_MESSAGES.ONBOARDING_SUCCESS,
       data,
     });
   }
@@ -109,7 +114,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Trainer approved successfully",
+      message: ADMIN_MESSAGES.TRAINER_APPROVED,
     });
   }
 
@@ -121,7 +126,7 @@ export default class UserController implements IUserController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Trainer rejected successfully",
+      message: ADMIN_MESSAGES.TRAINER_REJECTED,
     });
   }
 }

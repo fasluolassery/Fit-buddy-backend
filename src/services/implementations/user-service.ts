@@ -6,7 +6,6 @@ import {
   BadRequestError,
   ConflictError,
   NotFoundError,
-  ValidationError,
 } from "../../common/errors";
 import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
 import {
@@ -14,6 +13,11 @@ import {
   UserOnboardingDTO,
 } from "../../validators/onboarding.validator";
 import ITrainerRepository from "../../repositories/interfaces/trainer-repository.interface";
+import {
+  ADMIN_ERROR_MESSAGES,
+  TRAINER_ERROR_MESSAGES,
+  USER_ERROR_MESSAGES,
+} from "../../constants/messages";
 
 @injectable()
 export default class UserService implements IUserService {
@@ -27,7 +31,7 @@ export default class UserService implements IUserService {
     const user = await this._userRepository.findById(userId);
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
     }
 
     const {
@@ -109,9 +113,9 @@ export default class UserService implements IUserService {
   async blockUser(userId: string): Promise<void> {
     const user = await this._userRepository.findById(userId);
 
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
     if (user.role === "admin")
-      throw new BadRequestError("Admin cannot be blocked");
+      throw new BadRequestError(USER_ERROR_MESSAGES.ADMIN_BLOCK_NOT_ALLOWED);
     if (user.isBlocked) return;
 
     const { _id } = user;
@@ -123,7 +127,7 @@ export default class UserService implements IUserService {
   async unblockUser(userId: string): Promise<void> {
     const user = await this._userRepository.findById(userId);
 
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
     if (!user.isBlocked) return;
 
     const { _id } = user;
@@ -138,9 +142,9 @@ export default class UserService implements IUserService {
   ): Promise<UserDto> {
     const user = await this._userRepository.findById(userId);
 
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
     if (user.onboardingComplete) {
-      throw new BadRequestError("User onboarding already completed");
+      throw new BadRequestError(USER_ERROR_MESSAGES.ALREADY_ONBOARDED);
     }
 
     const { _id } = user;
@@ -168,7 +172,7 @@ export default class UserService implements IUserService {
       onboardingComplete: true,
     });
 
-    if (!updatedUser) throw new NotFoundError("User not found after update");
+    if (!updatedUser) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
 
     const {
       name,
@@ -206,16 +210,16 @@ export default class UserService implements IUserService {
     certificates: Express.Multer.File[],
   ): Promise<UserDto> {
     const user = await this._userRepository.findById(userId);
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
 
     if (user.role !== "trainer") {
-      throw new ValidationError(
-        "Only trainers can complete trainer onboarding",
-      );
+      throw new BadRequestError(USER_ERROR_MESSAGES.TRAINER_ONLY_ACTION);
     }
 
     if (user.onboardingComplete)
-      throw new ConflictError("Trainer onboarding already completed");
+      throw new ConflictError(
+        TRAINER_ERROR_MESSAGES.ONBOARDING_ALREADY_COMPLETED,
+      );
 
     const { _id } = user;
     const { bio, specializations, experience } = payload;
@@ -267,14 +271,16 @@ export default class UserService implements IUserService {
 
   async approveTrainer(userId: string): Promise<void> {
     const user = await this._userRepository.findById(userId);
-    if (!user) throw new NotFoundError("User not found");
+    if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
 
     if (user.role !== "trainer") {
-      throw new BadRequestError("User is not a trainer");
+      throw new BadRequestError(ADMIN_ERROR_MESSAGES.USER_NOT_TRAINER);
     }
 
     if (user.isBlocked) {
-      throw new BadRequestError("Blocked trainer cannot be approved");
+      throw new BadRequestError(
+        TRAINER_ERROR_MESSAGES.BLOCKED_TRAINER_APPROVAL,
+      );
     }
 
     if (user.trainerApprovalStatus === "approved") {
@@ -282,9 +288,9 @@ export default class UserService implements IUserService {
     }
 
     if (user.trainerApprovalStatus !== "pending") {
-      throw new BadRequestError(
-        `Trainer cannot be approved from status '${user.trainerApprovalStatus}'`,
-      );
+      throw new BadRequestError(TRAINER_ERROR_MESSAGES.INVALID_APPROVAL_STATE, {
+        status: user.trainerApprovalStatus,
+      });
     }
 
     const trainerProfile = await this._trainerRepository.findByUserId(
@@ -292,7 +298,7 @@ export default class UserService implements IUserService {
     );
 
     if (!trainerProfile) {
-      throw new NotFoundError("Trainer profile not found for this user");
+      throw new NotFoundError(TRAINER_ERROR_MESSAGES.PROFILE_NOT_FOUND);
     }
 
     await this._userRepository.updateById(user._id, {
@@ -303,17 +309,19 @@ export default class UserService implements IUserService {
 
   async rejectTrainer(userId: string, reason: string): Promise<void> {
     if (!reason || reason.trim().length < 3) {
-      throw new BadRequestError("Rejection reason is required");
+      throw new BadRequestError(
+        TRAINER_ERROR_MESSAGES.REJECTION_REASON_REQUIRED,
+      );
     }
 
     const user = await this._userRepository.findById(userId);
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
     }
 
     if (user.role !== "trainer") {
-      throw new BadRequestError("User is not a trainer");
+      throw new BadRequestError(ADMIN_ERROR_MESSAGES.USER_NOT_TRAINER);
     }
 
     if (user.trainerApprovalStatus === "rejected") {
@@ -321,7 +329,8 @@ export default class UserService implements IUserService {
     }
     if (user.trainerApprovalStatus !== "pending") {
       throw new BadRequestError(
-        `Trainer cannot be rejected from status '${user.trainerApprovalStatus}'`,
+        TRAINER_ERROR_MESSAGES.INVALID_REJECTION_STATE,
+        { status: user.trainerApprovalStatus },
       );
     }
 
@@ -330,7 +339,7 @@ export default class UserService implements IUserService {
     );
 
     if (!trainerProfile) {
-      throw new NotFoundError("Trainer profile not found for this user");
+      throw new NotFoundError(TRAINER_ERROR_MESSAGES.PROFILE_NOT_FOUND);
     }
 
     await this._userRepository.updateById(user._id, {
