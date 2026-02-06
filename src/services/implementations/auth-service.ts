@@ -6,7 +6,6 @@ import logger from "../../utils/logger.util";
 import {
   BadRequestError,
   ConflictError,
-  NotFoundError,
   UnauthorizedError,
   EmailNotVerifiedError,
 } from "../../common/errors";
@@ -37,6 +36,7 @@ import { env } from "../../config/env.config";
 import { UserRole } from "../../constants/roles.constant";
 import { IUserDocument } from "../../entities/user.entity";
 import { GoogleUserPayload } from "../../common/types/auth.types";
+import { AUTH_MESSAGES, COMMON_MESSAGES } from "../../constants/messages";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -52,7 +52,7 @@ export default class AuthService implements IAuthService {
 
     const existing = await this._userRepository.findOne({ email });
     if (existing) {
-      throw new ConflictError("Email already registered");
+      throw new ConflictError(AUTH_MESSAGES.EMAIL_ALREADY_REGISTERED);
     }
 
     const hashedPassword = await hashPassword(password);
@@ -82,15 +82,16 @@ export default class AuthService implements IAuthService {
     const { email, otp } = data;
 
     const record = await this._otpRepository.findOne({ email });
-    if (!record) throw new BadRequestError("Otp expired or invalid");
+    if (!record)
+      throw new BadRequestError(AUTH_MESSAGES.OTP_EXPIRED_OR_INVALID);
 
     if (record.expiresAt < new Date()) {
       await this._otpRepository.deleteMany({ email });
-      throw new BadRequestError("Otp expired");
+      throw new BadRequestError(AUTH_MESSAGES.OTP_EXPIRED_OR_INVALID);
     }
 
     if (record.otp !== otp) {
-      throw new BadRequestError("Invalid Otp");
+      throw new BadRequestError(AUTH_MESSAGES.OTP_EXPIRED_OR_INVALID);
     }
 
     const userRecord = await this._userRepository.updateOne(
@@ -99,7 +100,9 @@ export default class AuthService implements IAuthService {
     );
 
     if (!userRecord) {
-      throw new InternalServerError("User not found after OTP verification", {
+      logger.error(`OTP verified but user update failed for ${email}`);
+
+      throw new InternalServerError(COMMON_MESSAGES.INTERNAL_SERVER_ERROR, {
         email,
       });
     }
@@ -116,16 +119,18 @@ export default class AuthService implements IAuthService {
     const { email, password, loginAs } = data;
 
     const user = await this._userRepository.findOne({ email });
-    if (!user) throw new UnauthorizedError("Invalid credentials");
+    if (!user) throw new UnauthorizedError(AUTH_MESSAGES.INVALID_CREDENTIALS);
 
     const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) throw new UnauthorizedError("Invalid credentials");
+    if (!isMatch)
+      throw new UnauthorizedError(AUTH_MESSAGES.INVALID_CREDENTIALS);
 
     if (!user.isVerified) throw new EmailNotVerifiedError();
-    if (user.isBlocked) throw new UnauthorizedError("Account is blocked");
+    if (user.isBlocked)
+      throw new UnauthorizedError(AUTH_MESSAGES.ACCOUNT_BLOCKED);
 
     if (loginAs === "admin" && user.role !== "admin") {
-      throw new UnauthorizedError("Admin access only");
+      throw new UnauthorizedError(AUTH_MESSAGES.ADMIN_ONLY);
     }
 
     const {
@@ -173,7 +178,7 @@ export default class AuthService implements IAuthService {
 
   async refresh(refreshToken?: string): Promise<{ accessToken: string }> {
     if (!refreshToken) {
-      throw new UnauthorizedError("Refresh token missing");
+      throw new UnauthorizedError(AUTH_MESSAGES.REFRESH_TOKEN_MISSING);
     }
 
     const payload = verifyRefreshToken(refreshToken);
@@ -181,11 +186,11 @@ export default class AuthService implements IAuthService {
 
     const user = await this._userRepository.findById(id);
     if (!user || user.isBlocked) {
-      throw new UnauthorizedError("User not authorized");
+      throw new UnauthorizedError(AUTH_MESSAGES.USER_NOT_AUTHORIZED);
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedError("Email not verified");
+      throw new UnauthorizedError(AUTH_MESSAGES.EMAIL_NOT_VERIFIED);
     }
 
     const { _id, role } = user;
@@ -202,11 +207,11 @@ export default class AuthService implements IAuthService {
     const user = await this._userRepository.findOne({ email });
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      return { email };
     }
 
     if (user.isVerified) {
-      throw new BadRequestError("Email already verified");
+      throw new BadRequestError(AUTH_MESSAGES.EMAIL_ALREADY_VERIFIED);
     }
 
     await this._otpRepository.deleteMany({ email });
@@ -236,7 +241,6 @@ export default class AuthService implements IAuthService {
     const { rawToken, tokenHash } = generateResetToken();
 
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
     await this._passwordResetRepository.create({
       userId: _id,
       tokenHash,
@@ -247,7 +251,6 @@ export default class AuthService implements IAuthService {
     logger.info("Reset Link" + resetLink);
 
     await sendResetPasswordLink(email, resetLink, 5);
-
     logger.info(`password reset link sent to ${email}`);
   }
 
@@ -255,7 +258,6 @@ export default class AuthService implements IAuthService {
     const { token, newPassword } = data;
 
     const tokenHash = hashToken(token);
-
     const resetRecord = await this._passwordResetRepository.findOne({
       tokenHash,
       usedAt: null,
@@ -263,15 +265,13 @@ export default class AuthService implements IAuthService {
     });
 
     if (!resetRecord) {
-      throw new UnauthorizedError("Invalid or expired reset link");
+      throw new UnauthorizedError(AUTH_MESSAGES.RESET_LINK_INVALID);
     }
 
     const { userId, _id } = resetRecord;
-
     const hashedPassword = await hashPassword(newPassword);
 
     await this._userRepository.updateById(userId, { password: hashedPassword });
-
     await this._passwordResetRepository.updateById(_id, { usedAt: new Date() });
   }
 
@@ -294,36 +294,34 @@ export default class AuthService implements IAuthService {
     const { email, googleId, name, intent, role } = data;
 
     if (!email || !googleId) {
-      throw new BadRequestError("Invalid Google account data");
+      throw new BadRequestError(AUTH_MESSAGES.GOOGLE_INVALID_ACCOUNT_DATA);
     }
 
     let user = await this._userRepository.findOne({ email });
 
     if (user) {
       if (!user.googleId) {
-        throw new ConflictError(
-          "Account exists with email/password. Use normal login.",
-        );
+        throw new ConflictError(AUTH_MESSAGES.GOOGLE_PASSWORD_CONFLICT);
       }
 
       if (user.googleId !== googleId) {
-        throw new UnauthorizedError("Google account mismatch");
+        throw new UnauthorizedError(AUTH_MESSAGES.GOOGLE_ACCOUNT_MISMATCH);
       }
 
       if (user.isBlocked) {
-        throw new UnauthorizedError("Account disabled");
+        throw new UnauthorizedError(AUTH_MESSAGES.GOOGLE_ACCOUNT_DISABLED);
       }
 
       return this.issueTokens(user);
     }
 
     if (intent !== "signup") {
-      throw new UnauthorizedError("Account does not exist");
+      throw new UnauthorizedError(AUTH_MESSAGES.GOOGLE_ACCOUNT_NOT_FOUND);
     }
 
     const allowedRoles: UserRole[] = ["user", "trainer"];
     if (!role || !allowedRoles.includes(role)) {
-      throw new BadRequestError("Role required for signup");
+      throw new BadRequestError(AUTH_MESSAGES.ROLE_REQUIRED_FOR_SIGNUP);
     }
 
     const newUser = await this._userRepository.create({

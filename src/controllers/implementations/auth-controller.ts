@@ -17,6 +17,7 @@ import { env } from "../../config/env.config";
 import { mapGoogleAuthError } from "../helpers/map-google-auth-error";
 import { redirectOAuthError } from "../../utils/oauthRedirect.util";
 import { GoogleUserPayload } from "../../common/types/auth.types";
+import { AUTH_MESSAGES } from "../../constants/messages";
 
 @injectable()
 export default class AuthController implements IAuthController {
@@ -30,7 +31,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: "Signup successful. OTP sent to email.",
+      message: AUTH_MESSAGES.SIGNUP_SUCCESS_OTP_SENT,
       data,
     });
   }
@@ -43,7 +44,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Email verified successfully",
+      message: AUTH_MESSAGES.EMAIL_VERIFIED_SUCCESS,
       data,
     });
   }
@@ -59,7 +60,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Login successful",
+      message: AUTH_MESSAGES.LOGIN_SUCCESS,
       data: {
         accessToken,
         user,
@@ -74,7 +75,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Token refreshed successfully",
+      message: AUTH_MESSAGES.TOKEN_REFRESH_SUCCESS,
       data,
     });
   }
@@ -84,7 +85,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Logged out successfully",
+      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
     });
   }
 
@@ -95,7 +96,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "OTP resent successfully",
+      message: AUTH_MESSAGES.OTP_RESENT_SUCCESS,
       data,
     });
   }
@@ -106,7 +107,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "password reset link has been sent to email",
+      message: AUTH_MESSAGES.PASSWORD_RESET_LINK_SENT,
     });
   }
 
@@ -117,7 +118,7 @@ export default class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: "Your password has been reset successfully",
+      message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS,
     });
   }
 
