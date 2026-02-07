@@ -18,6 +18,7 @@ import { redirectOAuthError } from "../../utils/oauthRedirect.util";
 import { AUTH_MESSAGES } from "../../constants/messages";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 import { AuthMapper } from "../../mappers/auth.mapper";
+import { sendSuccess } from "../../common/http/api-response.util";
 
 @injectable()
 export default class AuthController implements IAuthController {
@@ -29,11 +30,12 @@ export default class AuthController implements IAuthController {
 
     const data = await this._authService.signup(signupDto);
 
-    res.status(HttpStatus.CREATED).json({
-      success: true,
-      message: AUTH_MESSAGES.SIGNUP_SUCCESS_OTP_SENT,
+    sendSuccess(
+      res,
+      AUTH_MESSAGES.SIGNUP_SUCCESS_OTP_SENT,
       data,
-    });
+      HttpStatus.CREATED,
+    );
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
@@ -42,11 +44,7 @@ export default class AuthController implements IAuthController {
     const dto: VerifyOtpReqDto = req.body;
     const data = await this._authService.verifyOtp(dto);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.EMAIL_VERIFIED_SUCCESS,
-      data,
-    });
+    sendSuccess(res, AUTH_MESSAGES.EMAIL_VERIFIED_SUCCESS, data);
   }
 
   async login(req: Request, res: Response): Promise<void> {
@@ -57,81 +55,49 @@ export default class AuthController implements IAuthController {
     const { accessToken, refreshToken, user } = data;
 
     res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.LOGIN_SUCCESS,
-      data: {
-        accessToken,
-        user,
-      },
-    });
+    sendSuccess(res, AUTH_MESSAGES.LOGIN_SUCCESS, { accessToken, user });
   }
 
   async refresh(req: Request, res: Response): Promise<void> {
     const refreshToken = req.cookies?.refreshToken;
 
     const data = await this._authService.refresh(refreshToken);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.TOKEN_REFRESH_SUCCESS,
-      data,
-    });
+    sendSuccess(res, AUTH_MESSAGES.TOKEN_REFRESH_SUCCESS, data);
   }
 
   async getCurrentUser(req: Request, res: Response): Promise<void> {
     const { id } = requireJwtUser(req);
 
     const data = await this._authService.getCurrentUser(id);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.CURRENT_USER_FETCHED,
-      data,
-    });
+    sendSuccess(res, AUTH_MESSAGES.CURRENT_USER_FETCHED, data);
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    res.clearCookie("refreshToken", refreshTokenCookieOptions);
+    logger.info("logout");
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
-    });
+    res.clearCookie("refreshToken", refreshTokenCookieOptions);
+    sendSuccess(res, AUTH_MESSAGES.LOGOUT_SUCCESS);
   }
 
   async resendOtp(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
 
     const data = await this._authService.resendOtp(email);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.OTP_RESENT_SUCCESS,
-      data,
-    });
+    sendSuccess(res, AUTH_MESSAGES.OTP_RESENT_SUCCESS, data);
   }
 
   async forgotPassword(req: Request, res: Response): Promise<void> {
     const dto: ForgotPasswordReqDto = req.body;
-    await this._authService.forgotPassword(dto);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.PASSWORD_RESET_LINK_SENT,
-    });
+    await this._authService.forgotPassword(dto);
+    sendSuccess(res, AUTH_MESSAGES.PASSWORD_RESET_LINK_SENT);
   }
 
   async resetPassword(req: Request, res: Response): Promise<void> {
     const dto: ResetPasswordReqDto = req.body;
 
     await this._authService.resetPassword(dto);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS,
-    });
+    sendSuccess(res, AUTH_MESSAGES.PASSWORD_RESET_SUCCESS);
   }
 
   async googleCallback(req: Request, res: Response): Promise<void> {
