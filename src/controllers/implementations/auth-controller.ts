@@ -9,26 +9,25 @@ import {
   ForgotPasswordReqDto,
   LoginReqDto,
   ResetPasswordReqDto,
-  SignupReqDto,
   VerifyOtpReqDto,
 } from "../../dto/auth.dto";
 import { refreshTokenCookieOptions } from "../../config/cookie.config";
 import { env } from "../../config/env.config";
 import { mapGoogleAuthError } from "../helpers/map-google-auth-error";
 import { redirectOAuthError } from "../../utils/oauthRedirect.util";
-import { GoogleUserPayload } from "../../common/types/auth.types";
 import { AUTH_MESSAGES } from "../../constants/messages";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
+import { AuthMapper } from "../../mappers/auth.mapper";
 
 @injectable()
 export default class AuthController implements IAuthController {
   constructor(@inject(TYPES.IAuthService) private _authService: IAuthService) {}
 
   async signup(req: Request, res: Response): Promise<void> {
-    const dto: SignupReqDto = req.body;
-    logger.info(`Data: ${dto.email}`);
+    const signupDto = AuthMapper.toSignupDto(req.body);
+    logger.info(`Data: ${signupDto.email}`);
 
-    const data = await this._authService.signup(dto);
+    const data = await this._authService.signup(signupDto);
 
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -137,9 +136,9 @@ export default class AuthController implements IAuthController {
 
   async googleCallback(req: Request, res: Response): Promise<void> {
     try {
-      const googleUser = req.user as GoogleUserPayload;
+      const googleDto = AuthMapper.toGoogleLoginDto(req.user);
 
-      const { refreshToken } = await this._authService.googleLogin(googleUser);
+      const { refreshToken } = await this._authService.googleLogin(googleDto);
       res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
       res.redirect(`${env.FRONTEND_URL}/redirect`);

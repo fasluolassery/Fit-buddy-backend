@@ -6,6 +6,7 @@ import IUserService from "../../services/interfaces/user-service.interface";
 import { HttpStatus } from "../../constants/http-status.constant";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 import { USER_MESSAGES } from "../../constants/messages";
+import { UserOnboardingReqDto } from "../../dto/user.dto";
 
 export default class UserController implements IUserController {
   constructor(@inject(TYPES.IUserService) private _userService: IUserService) {}
@@ -13,7 +14,7 @@ export default class UserController implements IUserController {
   async userOnboarding(req: Request, res: Response): Promise<void> {
     const { id } = requireJwtUser(req);
 
-    const dto = req.body;
+    const dto: UserOnboardingReqDto = req.body;
     const data = await this._userService.userOnboarding(id, dto);
 
     res.status(HttpStatus.OK).json({

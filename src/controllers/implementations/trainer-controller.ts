@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import ITrainerController from "../interfaces/trainer-controller.interface";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 import { TrainerMulterFiles } from "../../middlewares/validate-files.middleware";
-import { TrainerOnboardingDTO } from "../../validators/onboarding.validator";
 import { HttpStatus } from "../../constants/http-status.constant";
 import { TRAINER_MESSAGES } from "../../constants/messages";
 import { inject, injectable } from "inversify";
 import TYPES from "../../constants/types";
 import ITrainerService from "../../services/interfaces/trainer-service.interface";
+import { TrainerOnboardReqDto } from "../../dto/trainer.dto";
 
 @injectable()
 export default class TrainerController implements ITrainerController {
@@ -22,11 +22,11 @@ export default class TrainerController implements ITrainerController {
     const profilePhoto = files.profilePhoto ?? [];
     const certificates = files.certificates ?? [];
 
-    const dto: TrainerOnboardingDTO = req.body;
+    const trainerOnboardDto: TrainerOnboardReqDto = req.body;
 
     const data = await this._trainerService.onboardTrainer(
       id,
-      dto,
+      trainerOnboardDto,
       profilePhoto,
       certificates,
     );
