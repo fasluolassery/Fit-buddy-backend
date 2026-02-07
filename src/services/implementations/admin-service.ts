@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
 import IAdminService from "../interfaces/admin-service.interface";
 import TYPES from "../../constants/types";
 import IUserRepository from "../../repositories/interfaces/user-repository.interface";
@@ -10,6 +9,8 @@ import {
   TRAINER_ERROR_MESSAGES,
   USER_ERROR_MESSAGES,
 } from "../../constants/messages";
+import { AdminTrainerListDto, AdminUserListDto } from "../../dto/admin.dto";
+import { AdminMapper } from "../../mappers/admin.mapper";
 
 @injectable()
 export default class AdminService implements IAdminService {
@@ -19,24 +20,13 @@ export default class AdminService implements IAdminService {
     private _trainerRepository: ITrainerRepository,
   ) {}
 
-  async getAllUsers(): Promise<UserDto[]> {
+  async getAllUsers(): Promise<AdminUserListDto[]> {
     const users = await this._userRepository.findUserByRole("user");
-    return users.map((user) => ({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      onboardingComplete: user.onboardingComplete,
-      isVerified: user.isVerified,
-      isBlocked: user.isBlocked,
-      createdAt: user.createdAt,
-      profilePhoto: user.profilePhoto,
-    }));
+    return users.map(AdminMapper.toAdminUserDto);
   }
 
-  async getAllTrainers(): Promise<AdminTrainerDto[]> {
+  async getAllTrainers(): Promise<AdminTrainerListDto[]> {
     const trainerUsers = await this._userRepository.findUserByRole("trainer");
-
     const trainerProfiles = await this._trainerRepository.findByUserIds(
       trainerUsers.map((u) => u._id.toString()),
     );
@@ -45,24 +35,9 @@ export default class AdminService implements IAdminService {
       trainerProfiles.map((t) => [t.userId.toString(), t]),
     );
 
-    return trainerUsers.map((user) => {
-      const trainer = trainerMap.get(user._id.toString());
-
-      return {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        profilePhoto: user.profilePhoto ?? null,
-
-        trainerApprovalStatus: user.trainerApprovalStatus,
-        isVerified: user.isVerified,
-        isBlocked: user.isBlocked,
-
-        rating: trainer?.rating ?? 0,
-        experienceYears: trainer?.experienceYears ?? "0",
-        createdAt: user.createdAt,
-      };
-    });
+    return trainerUsers.map((user) =>
+      AdminMapper.toAdminTrainerDto(user, trainerMap.get(user._id.toString())),
+    );
   }
 
   async blockUserOrTrainer(userId: string): Promise<void> {

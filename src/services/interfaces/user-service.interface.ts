@@ -1,6 +1,8 @@
-import { UserDto } from "../../dto/user.dto";
-import { UserOnboardingDTO } from "../../validators/onboarding.validator";
+import { AuthUserDto, UserOnboardingReqDto } from "../../dto/user.dto";
 
 export default interface IUserService {
-  userOnboarding(userId: string, payload: UserOnboardingDTO): Promise<UserDto>;
+  userOnboarding(
+    userId: string,
+    payload: UserOnboardingReqDto,
+  ): Promise<AuthUserDto>;
 }

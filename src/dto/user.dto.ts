@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-export interface UserDto {
+export interface AuthUserDto {
   _id: Types.ObjectId;
   email: string;
   role: "user" | "trainer" | "admin";
@@ -11,21 +11,16 @@ export interface UserDto {
   isBlocked: boolean;
   trainerApprovalStatus?: "pending" | "approved" | "rejected";
   trainerRejectionReason?: string | null;
-
   createdAt: Date;
 }
 
-export interface AdminTrainerDto {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  profilePhoto?: string | null;
-
-  trainerApprovalStatus: "pending" | "approved" | "rejected";
-  isVerified: boolean;
-  isBlocked: boolean;
-
-  rating: number;
-  experienceYears: string;
-  createdAt: Date;
+export interface UserOnboardingReqDto {
+  primaryGoal: string;
+  fitnessLevel: string;
+  gender: string;
+  age: number;
+  height: number;
+  weight: number;
+  dietaryPreferences?: string;
+  equipments?: string[];
 }

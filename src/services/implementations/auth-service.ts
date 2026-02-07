@@ -13,9 +13,10 @@ import {
 import { comparePassword, hashPassword } from "../../utils/password.util";
 import {
   ForgotPasswordReqDto,
-  GoogleLoginServiceResDto,
+  GoogleLoginResDto,
   LoginReqDto,
-  LoginServiceResDto,
+  LoginResDto,
+  RefreshResDto,
   ResetPasswordReqDto,
   SignupReqDto,
   SignupResDto,
@@ -38,7 +39,8 @@ import { UserRole } from "../../constants/roles.constant";
 import { IUserDocument } from "../../entities/user.entity";
 import { GoogleUserPayload } from "../../common/types/auth.types";
 import { AUTH_MESSAGES, COMMON_MESSAGES } from "../../constants/messages";
-import { UserDto } from "../../dto/user.dto";
+import { AuthUserDto } from "../../dto/user.dto";
+import { AuthMapper } from "../../mappers/auth.mapper";
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -117,7 +119,7 @@ export default class AuthService implements IAuthService {
     };
   }
 
-  async login(data: LoginReqDto): Promise<LoginServiceResDto> {
+  async login(data: LoginReqDto): Promise<LoginResDto> {
     const { email, password, loginAs } = data;
 
     const user = await this._userRepository.findOne({ email });
@@ -135,18 +137,7 @@ export default class AuthService implements IAuthService {
       throw new UnauthorizedError(AUTH_MESSAGES.ADMIN_ONLY);
     }
 
-    const {
-      _id,
-      role,
-      name,
-      profilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus,
-      trainerRejectionReason,
-      createdAt,
-    } = user;
+    const { _id, role } = user;
 
     const accessToken = generateAccessToken({
       id: _id.toString(),
@@ -158,27 +149,16 @@ export default class AuthService implements IAuthService {
       role,
     });
 
+    const authUserDto = AuthMapper.toAuthUserDto(user);
+
     return {
       accessToken,
       refreshToken,
-      user: {
-        _id,
-        email,
-        role,
-        name,
-        profilePhoto,
-        onboardingComplete,
-        isVerified,
-        isBlocked,
-        trainerApprovalStatus:
-          role === "trainer" ? trainerApprovalStatus : undefined,
-        trainerRejectionReason,
-        createdAt,
-      },
+      user: authUserDto,
     };
   }
 
-  async refresh(refreshToken?: string): Promise<{ accessToken: string }> {
+  async refresh(refreshToken?: string): Promise<RefreshResDto> {
     if (!refreshToken) {
       throw new UnauthorizedError(AUTH_MESSAGES.REFRESH_TOKEN_MISSING);
     }
@@ -205,41 +185,14 @@ export default class AuthService implements IAuthService {
     return { accessToken };
   }
 
-  async getCurrentUser(userId: string): Promise<UserDto> {
+  async getCurrentUser(userId: string): Promise<AuthUserDto> {
     const user = await this._userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundError(AUTH_MESSAGES.USER_NOT_FOUND);
     }
 
-    const {
-      _id,
-      name,
-      role,
-      email,
-      profilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus,
-      trainerRejectionReason,
-      createdAt,
-    } = user;
-
-    return {
-      _id,
-      name,
-      role,
-      email,
-      profilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus:
-        role === "trainer" ? trainerApprovalStatus : undefined,
-      trainerRejectionReason,
-      createdAt,
-    };
+    return AuthMapper.toAuthUserDto(user);
   }
 
   async resendOtp(email: string): Promise<SignupResDto> {
@@ -314,7 +267,7 @@ export default class AuthService implements IAuthService {
     await this._passwordResetRepository.updateById(_id, { usedAt: new Date() });
   }
 
-  private issueTokens(user: IUserDocument): GoogleLoginServiceResDto {
+  private issueTokens(user: IUserDocument): GoogleLoginResDto {
     const { _id, role } = user;
 
     const refreshToken = generateRefreshToken({
@@ -327,9 +280,7 @@ export default class AuthService implements IAuthService {
     };
   }
 
-  async googleLogin(
-    data: GoogleUserPayload,
-  ): Promise<GoogleLoginServiceResDto> {
+  async googleLogin(data: GoogleUserPayload): Promise<GoogleLoginResDto> {
     const { email, googleId, name, intent, role } = data;
 
     if (!email || !googleId) {

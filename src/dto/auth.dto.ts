@@ -1,4 +1,4 @@
-import { UserDto } from "./user.dto";
+import { AuthUserDto } from "./user.dto";
 
 export interface SignupReqDto {
   name: string;
@@ -28,10 +28,14 @@ export interface LoginReqDto {
   loginAs?: "user" | "admin";
 }
 
-export interface LoginServiceResDto {
+export interface LoginResDto {
   accessToken: string;
   refreshToken: string;
-  user: UserDto;
+  user: AuthUserDto;
+}
+
+export interface RefreshResDto {
+  accessToken: string;
 }
 
 export interface ForgotPasswordReqDto {
@@ -43,6 +47,6 @@ export interface ResetPasswordReqDto {
   newPassword: string;
 }
 
-export interface GoogleLoginServiceResDto {
+export interface GoogleLoginResDto {
   refreshToken: string;
 }

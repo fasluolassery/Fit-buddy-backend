@@ -52,6 +52,3 @@ export const trainerOnboardingSchema = z.object({
     .array(z.string().min(2, "Specialization too short"))
     .min(1, "At least one specialization is required"),
 });
-
-export type UserOnboardingDTO = z.infer<typeof userOnboardingSchema>;
-export type TrainerOnboardingDTO = z.infer<typeof trainerOnboardingSchema>;
