@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import IAdminController from "../interfaces/admin-controller.interface";
-import { HttpStatus } from "../../constants/http-status.constant";
 import { ADMIN_MESSAGES } from "../../constants/messages";
 import { inject, injectable } from "inversify";
 import TYPES from "../../constants/types";
 import IAdminService from "../../services/interfaces/admin-service.interface";
+import { sendSuccess } from "../../common/http/api-response.util";
 
 @injectable()
 export default class AdminController implements IAdminController {
@@ -15,54 +15,34 @@ export default class AdminController implements IAdminController {
   async getUsers(req: Request, res: Response): Promise<void> {
     const data = await this._adminService.getAllUsers();
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.USERS_FETCHED,
-      data,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.USERS_FETCHED, data);
   }
 
   async getTrainers(req: Request, res: Response): Promise<void> {
     const data = await this._adminService.getAllTrainers();
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.TRAINERS_FETCHED,
-      data,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.TRAINERS_FETCHED, data);
   }
 
   async blockUserOrTrainer(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     await this._adminService.blockUserOrTrainer(id);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.USER_BLOCKED,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.USER_BLOCKED);
   }
 
   async unblockUserOrTrainer(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     await this._adminService.unblockUserOrTrainer(id);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.USER_UNBLOCKED,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.USER_UNBLOCKED);
   }
 
   async approveTrainer(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     await this._adminService.approveTrainer(id);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.TRAINER_APPROVED,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.TRAINER_APPROVED);
   }
 
   async rejectTrainer(req: Request, res: Response): Promise<void> {
@@ -70,10 +50,6 @@ export default class AdminController implements IAdminController {
     const { reason } = req.body;
 
     await this._adminService.rejectTrainer(id, reason);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: ADMIN_MESSAGES.TRAINER_REJECTED,
-    });
+    sendSuccess(res, ADMIN_MESSAGES.TRAINER_REJECTED);
   }
 }

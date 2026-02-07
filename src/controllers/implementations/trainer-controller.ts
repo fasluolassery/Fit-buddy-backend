@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import ITrainerController from "../interfaces/trainer-controller.interface";
 import { requireJwtUser } from "../../common/helpers/require-jwt-user";
 import { TrainerMulterFiles } from "../../middlewares/validate-files.middleware";
-import { HttpStatus } from "../../constants/http-status.constant";
 import { TRAINER_MESSAGES } from "../../constants/messages";
 import { inject, injectable } from "inversify";
 import TYPES from "../../constants/types";
 import ITrainerService from "../../services/interfaces/trainer-service.interface";
 import { TrainerOnboardReqDto } from "../../dto/trainer.dto";
+import { sendSuccess } from "../../common/http/api-response.util";
 
 @injectable()
 export default class TrainerController implements ITrainerController {
@@ -31,10 +31,6 @@ export default class TrainerController implements ITrainerController {
       certificates,
     );
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: TRAINER_MESSAGES.ONBOARDING_SUCCESS,
-      data,
-    });
+    sendSuccess(res, TRAINER_MESSAGES.ONBOARDING_SUCCESS, data);
   }
 }
