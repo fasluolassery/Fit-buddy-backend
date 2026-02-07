@@ -3,23 +3,20 @@ import IUserRepository from "../../repositories/interfaces/user-repository.inter
 import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
 import { BadRequestError, NotFoundError } from "../../common/errors";
-import { UserDto } from "../../dto/user.dto";
-import { UserOnboardingDTO } from "../../validators/onboarding.validator";
-import ITrainerRepository from "../../repositories/interfaces/trainer-repository.interface";
 import { USER_ERROR_MESSAGES } from "../../constants/messages";
+import { AuthMapper } from "../../mappers/auth.mapper";
+import { AuthUserDto, UserOnboardingReqDto } from "../../dto/user.dto";
 
 @injectable()
 export default class UserService implements IUserService {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.ITrainerRepository)
-    private _trainerRepository: ITrainerRepository,
   ) {}
 
   async userOnboarding(
     userId: string,
-    payload: UserOnboardingDTO,
-  ): Promise<UserDto> {
+    payload: UserOnboardingReqDto,
+  ): Promise<AuthUserDto> {
     const user = await this._userRepository.findById(userId);
 
     if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
@@ -54,32 +51,6 @@ export default class UserService implements IUserService {
 
     if (!updatedUser) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
 
-    const {
-      name,
-      role,
-      email,
-      profilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus,
-      trainerRejectionReason,
-      createdAt,
-    } = updatedUser;
-
-    return {
-      _id,
-      name,
-      role,
-      email,
-      profilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus:
-        role === "trainer" ? trainerApprovalStatus : undefined,
-      trainerRejectionReason,
-      createdAt,
-    };
+    return AuthMapper.toAuthUserDto(updatedUser);
   }
 }

@@ -1,11 +1,11 @@
-import { UserDto } from "../../dto/user.dto";
-import { TrainerOnboardingDTO } from "../../validators/onboarding.validator";
+import { TrainerOnboardReqDto } from "../../dto/trainer.dto";
+import { AuthUserDto } from "../../dto/user.dto";
 
 export default interface ITrainerService {
   onboardTrainer(
     userId: string,
-    payload: TrainerOnboardingDTO,
+    payload: TrainerOnboardReqDto,
     profilePhoto: Express.Multer.File[],
     certificates: Express.Multer.File[],
-  ): Promise<UserDto>;
+  ): Promise<AuthUserDto>;
 }

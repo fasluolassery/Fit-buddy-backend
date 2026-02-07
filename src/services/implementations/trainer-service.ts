@@ -8,12 +8,13 @@ import {
   TRAINER_ERROR_MESSAGES,
   USER_ERROR_MESSAGES,
 } from "../../constants/messages";
-import { UserDto } from "../../dto/user.dto";
-import { TrainerOnboardingDTO } from "../../validators/onboarding.validator";
+import { AuthUserDto } from "../../dto/user.dto";
 import ITrainerService from "../interfaces/trainer-service.interface";
 import TYPES from "../../constants/types";
 import IUserRepository from "../../repositories/interfaces/user-repository.interface";
 import ITrainerRepository from "../../repositories/interfaces/trainer-repository.interface";
+import { AuthMapper } from "../../mappers/auth.mapper";
+import { TrainerOnboardReqDto } from "../../dto/trainer.dto";
 
 @injectable()
 export default class TrainerService implements ITrainerService {
@@ -25,10 +26,10 @@ export default class TrainerService implements ITrainerService {
 
   async onboardTrainer(
     userId: string,
-    payload: TrainerOnboardingDTO,
+    payload: TrainerOnboardReqDto,
     profilePhoto: Express.Multer.File[],
     certificates: Express.Multer.File[],
-  ): Promise<UserDto> {
+  ): Promise<AuthUserDto> {
     const user = await this._userRepository.findById(userId);
     if (!user) throw new NotFoundError(USER_ERROR_MESSAGES.NOT_FOUND);
 
@@ -61,31 +62,6 @@ export default class TrainerService implements ITrainerService {
 
     await user.save();
 
-    const {
-      name,
-      role,
-      email,
-      profilePhoto: savedProfilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus,
-      trainerRejectionReason,
-      createdAt,
-    } = user;
-
-    return {
-      _id,
-      name,
-      role,
-      email,
-      profilePhoto: savedProfilePhoto,
-      onboardingComplete,
-      isVerified,
-      isBlocked,
-      trainerApprovalStatus,
-      trainerRejectionReason,
-      createdAt,
-    };
+    return AuthMapper.toAuthUserDto(user);
   }
 }

@@ -1,8 +1,8 @@
-import { AdminTrainerDto, UserDto } from "../../dto/user.dto";
+import { AdminTrainerListDto, AdminUserListDto } from "../../dto/admin.dto";
 
 export default interface IAdminService {
-  getAllUsers(): Promise<UserDto[]>;
-  getAllTrainers(): Promise<AdminTrainerDto[]>;
+  getAllUsers(): Promise<AdminUserListDto[]>;
+  getAllTrainers(): Promise<AdminTrainerListDto[]>;
   blockUserOrTrainer(userId: string): Promise<void>;
   unblockUserOrTrainer(userId: string): Promise<void>;
   approveTrainer(userId: string): Promise<void>;
