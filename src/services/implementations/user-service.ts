@@ -3,7 +3,6 @@ import IUserRepository from "../../repositories/interfaces/user-repository.inter
 import IUserService from "../interfaces/user-service.interface";
 import TYPES from "../../constants/types";
 import { BadRequestError, NotFoundError } from "../../common/errors";
-import ITrainerRepository from "../../repositories/interfaces/trainer-repository.interface";
 import { USER_ERROR_MESSAGES } from "../../constants/messages";
 import { AuthMapper } from "../../mappers/auth.mapper";
 import { AuthUserDto, UserOnboardingReqDto } from "../../dto/user.dto";
@@ -12,8 +11,6 @@ import { AuthUserDto, UserOnboardingReqDto } from "../../dto/user.dto";
 export default class UserService implements IUserService {
   constructor(
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.ITrainerRepository)
-    private _trainerRepository: ITrainerRepository,
   ) {}
 
   async userOnboarding(
